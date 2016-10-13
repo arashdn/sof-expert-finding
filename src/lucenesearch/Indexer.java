@@ -302,21 +302,30 @@ public class Indexer
         //
         iwc.setRAMBufferSizeMB(1024.0);
         IndexWriter writer = new IndexWriter(dir, iwc);
+        //writer.close();
+
 
         //Read File Line By Line
         long i = 1;
         while ((strLine = br.readLine()) != null)
         {
-            InputSource is = new InputSource(new StringReader(strLine));
-            DOMParser dp = new DOMParser();
-            dp.parse(is);
-            Document doc = dp.getDocument();
-            NodeList nl = doc.getElementsByTagName("row");
-            Node n = nl.item(0);
-            NamedNodeMap nnm = n.getAttributes();
-            Post p = new Post(nnm);
-            indexPost(writer, p);
-            System.out.println("Indexing row " + (i++));
+            if(strLine.contains("</posts>"))
+            {
+                System.out.println("Completed on: "+i);
+            }
+            else
+            {
+                InputSource is = new InputSource(new StringReader(strLine));
+                DOMParser dp = new DOMParser();
+                dp.parse(is);
+                Document doc = dp.getDocument();
+                NodeList nl = doc.getElementsByTagName("row");
+                Node n = nl.item(0);
+                NamedNodeMap nnm = n.getAttributes();
+                Post p = new Post(nnm);
+                indexPost(writer, p);
+                System.out.println("Indexing row " + (i++));
+            }
 
         }
 
