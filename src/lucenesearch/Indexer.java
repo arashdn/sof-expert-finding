@@ -302,7 +302,6 @@ public class Indexer
         //
         iwc.setRAMBufferSizeMB(1024.0);
         IndexWriter writer = new IndexWriter(dir, iwc);
-        //writer.close();
 
 
         //Read File Line By Line
@@ -311,6 +310,7 @@ public class Indexer
         {
             if(strLine.contains("</posts>"))
             {
+                writer.close();
                 System.out.println("Completed on: "+i);
             }
             else
@@ -331,6 +331,8 @@ public class Indexer
 
         //Close the input stream
         br.close();
+        if(writer.isOpen())
+            writer.close();
         Date end = new Date();
         System.out.println(end.getTime() - start.getTime() + " total milliseconds");
 
