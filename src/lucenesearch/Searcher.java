@@ -8,6 +8,7 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
@@ -76,22 +77,8 @@ public class Searcher
         for (int i = start; i < end; i++)
         {
             Document doc = searcher.doc(hits[i].doc);
-            String id = doc.get("SId");
-            if (id != null)
-            {
-                System.out.println((i + 1) + ". " + id);
-                String title = doc.get("Title");
-                if (title != null)
-                {
-                    System.out.println("   Title: " + doc.get("Title"));
-                }
-            }
-            else
-            {
-                System.out.println((i + 1) + ". " + "No id for this document");
-
-            }
-
+            Post p =new Post(doc);
+            System.out.println(p);
         }
     }
 }

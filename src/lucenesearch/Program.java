@@ -20,7 +20,7 @@ public class Program
         String postIndexPath = "./data/Posts.xml";
         try
         {
-            if(true)
+            if(false)
             {
                 Indexer i = new Indexer();
                 i.indexPosts(postIndexPath);

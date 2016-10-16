@@ -340,6 +340,87 @@ public class Post
         }
 
     }
+    
+    public Post(org.apache.lucene.document.Document doc) 
+    {
+        if(doc.get("SId") != null)
+            this.setId(Integer.parseInt(doc.get("SId")));
+        
+        if (doc.get("SPostTypeId") != null)
+        {
+            this.setPostTypeId(Integer.parseInt(doc.get("SPostTypeId")));
+        }
+        if (doc.get("SAcceptedAnswerId") != null)
+        {
+            this.setAcceptedAnswerId(Integer.parseInt(doc.get("SAcceptedAnswerId")));
+        }
+        if (doc.get("SParentId") != null)
+        {
+            this.setParentId(Integer.parseInt(doc.get("SParentId")));
+        }
+        if (doc.get("SCreationDate") != null)
+        {
+            this.setCreationDate(new Date(Long.parseLong(doc.get("SCreationDate"))));
+        }
+        if (doc.get("SScore") != null)
+        {
+            this.setScore(Integer.parseInt(doc.get("SScore")));
+        }
+        if (doc.get("SViewCount") != null)
+        {
+            this.setViewCount(Integer.parseInt(doc.get("SViewCount")));
+        }
+        if (doc.get("Body") != null)
+        {
+            this.setBody(doc.get("Body"));
+        }
+        if (doc.get("SOwnerUserId") != null)
+        {
+            this.setOwnerUserId(Integer.parseInt(doc.get("SOwnerUserId")));
+        }
+        if (doc.get("SLastEditorUserId") != null)
+        {
+            this.setLastEditorUserId(Integer.parseInt(doc.get("SLastEditorUserId")));
+        }
+        if (doc.get("LastEditorDisplayName") != null)
+        {
+            this.setLastEditorDisplayName(doc.get("LastEditorDisplayName"));
+        }
+        if (doc.get("SLastEditDate") != null)
+        {
+            this.setLastEditDate(new Date(Long.parseLong(doc.get("SLastEditDate"))));
+        }
+        if (doc.get("SLastActivityDate") != null)
+        {
+            this.setLastActivityDate(new Date(Long.parseLong(doc.get("SLastActivityDate"))));
+        }
+        if (doc.get("Title") != null)
+        {
+            this.setTitle(doc.get("Title"));
+        }
+        if (doc.getValues("Tags") != null)
+        {
+            this.setTags(new ArrayList<>(Arrays.asList(doc.getValues("Tags"))));
+        }
+        if (doc.get("SAnswerCount") != null)
+        {
+            this.setAnswerCount(Integer.parseInt(doc.get("SAnswerCount")));
+        }
+        if (doc.get("SCommentCount") != null)
+        {
+            this.setCommentCount(Integer.parseInt(doc.get("SCommentCount")));
+        }
+        
+        if (doc.get("SFavoriteCount") != null)
+        {
+            this.setFavoriteCount(Integer.parseInt(doc.get("SFavoriteCount")));
+        }
+        if (doc.get("SCommunityOwnedDate") != null)
+        {
+            this.setCommunityOwnedDate(new Date(Long.parseLong(doc.get("SCommunityOwnedDate"))));
+        }
+
+    }
 
     @Override
     public String toString()
