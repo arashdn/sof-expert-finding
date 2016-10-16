@@ -27,6 +27,7 @@ import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
@@ -104,6 +105,8 @@ public class Indexer
                 Post p = new Post(nnm);
                 indexPost(writer, p);
                 System.out.println("Indexing row " + (i++));
+                if(i>1000000)
+                    break;
             }
 
         }
@@ -122,7 +125,7 @@ public class Indexer
         // make a new, empty document
         org.apache.lucene.document.Document doc = new org.apache.lucene.document.Document();
 
-        doc.add(new LongPoint("Id", p.getId()));
+        doc.add(new IntPoint("Id", p.getId()));
         doc.add(new StoredField("SId",p.getId()));
         
         doc.add(new IntPoint("PostTypeId", p.getPostTypeId()));
@@ -130,8 +133,14 @@ public class Indexer
         
         if(p.getParentId() != 0)
         {
-            doc.add(new LongPoint("ParentId", p.getParentId()));
+            doc.add(new IntPoint("ParentId", p.getParentId()));
             doc.add(new StoredField("SParentId",p.getParentId()));
+        }
+        
+        if(p.getAcceptedAnswerId()!= 0)
+        {
+            doc.add(new IntPoint("AcceptedAnswerId", p.getAcceptedAnswerId()));
+            doc.add(new StoredField("SAcceptedAnswerId",p.getAcceptedAnswerId()));
         }
         
         doc.add(new LongPoint("CreationDate", p.getCreationDate().getTime()));
@@ -148,19 +157,45 @@ public class Indexer
         
         if(p.getBody() != null)
             doc.add(new TextField("Body", p.getBody(), Field.Store.YES));
+                
         
-        doc.add(new LongPoint("OwnerUserId", p.getOwnerUserId()));
-        doc.add(new StoredField("SOwnerUserId",p.getOwnerUserId()));
-       
-        doc.add(new LongPoint("LastActivityDate", p.getLastActivityDate().getTime()));
-        doc.add(new StoredField("SLastActivityDate",p.getLastActivityDate().getTime()));
-
+        if(p.getOwnerUserId()!= 0)
+        {
+            doc.add(new IntPoint("OwnerUserId", p.getOwnerUserId()));
+            doc.add(new StoredField("SOwnerUserId",p.getOwnerUserId()));
+        }
+        
+        if(p.getLastEditorUserId()!= 0)
+        {
+            doc.add(new IntPoint("LastEditorUserId", p.getLastEditorUserId()));
+            doc.add(new StoredField("SLastEditorUserId",p.getLastEditorUserId()));
+        }
+        
+        if(p.getLastEditorDisplayName() != null)
+            doc.add(new TextField("LastEditorDisplayName", p.getLastEditorDisplayName(), Field.Store.YES));
+        
+        if(p.getLastEditDate() != null)
+        {
+            doc.add(new LongPoint("LastEditDate", p.getLastEditDate().getTime()));
+            doc.add(new StoredField("SLastEditDate",p.getLastEditDate().getTime()));
+        }
+        
+       if(p.getLastActivityDate()!= null)
+       {
+            doc.add(new LongPoint("LastActivityDate", p.getLastActivityDate().getTime()));
+            doc.add(new StoredField("SLastActivityDate",p.getLastActivityDate().getTime()));
+       }
         
         if(p.getTitle()!= null)
             doc.add(new TextField("Title", p.getTitle(), Field.Store.YES));
         
         if(p.getTags() != null)
-            doc.add(new TextField("Tags", p.getTags(), Field.Store.YES));
+        {
+            for (String tag : p.getTags())
+            {
+                doc.add(new StringField("Tags", tag, Field.Store.YES));
+            }
+        }
         
         doc.add(new IntPoint("AnswerCount", p.getAnswerCount()));
         doc.add(new StoredField("SAnswerCount",p.getAnswerCount()));
@@ -168,7 +203,14 @@ public class Indexer
         doc.add(new IntPoint("CommentCount", p.getCommentCount()));
         doc.add(new StoredField("SCommentCount",p.getCommentCount()));
 
+        doc.add(new IntPoint("FavoriteCount", p.getFavoriteCount()));
+        doc.add(new StoredField("SFavoriteCount",p.getFavoriteCount()));
 
+        if(p.getCommunityOwnedDate()!= null)
+        {
+           doc.add(new LongPoint("CommunityOwnedDate", p.getCommunityOwnedDate().getTime()));
+           doc.add(new StoredField("SCommunityOwnedDate",p.getCommunityOwnedDate().getTime()));
+        }
 
 
         if (writer.getConfig().getOpenMode() == IndexWriterConfig.OpenMode.CREATE)

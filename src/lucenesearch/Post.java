@@ -2,6 +2,8 @@ package lucenesearch;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import org.w3c.dom.NamedNodeMap;
 
@@ -12,21 +14,49 @@ import org.w3c.dom.NamedNodeMap;
 public class Post
 {
 
-    private long id;
-    private int postTypeId;
-    private long parentId;
+    private int id;
+    private int postTypeId; 
+    private int acceptedAnswerId;
+    private int parentId;
     private Date creationDate;
     private int score;
     private int viewCount;
     private String body;
-    private long ownerUserId;
+    private int ownerUserId;
+    private int lastEditorUserId;
+    private String lastEditorDisplayName;
+    private Date lastEditDate;
     private Date lastActivityDate;
     private String title;
-    private String tags;
+    private ArrayList<String> tags;
     private int answerCount;
-    private int commentCount;
+    private int commentCount; 
+    private int favoriteCount;
+    private Date communityOwnedDate;
 
     // <editor-fold desc="Setters and getters" defaultstate="collapsed">
+    public Date getCommunityOwnedDate()
+    {
+        return communityOwnedDate;
+    }
+    public void setCommunityOwnedDate(Date communityOwnedDate)
+    {
+        this.communityOwnedDate = communityOwnedDate;
+    }
+    public void setCommunityOwnedDate(String lastActivityDate) throws ParseException
+    {
+        String d = lastActivityDate.replaceAll("T", " ");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
+        this.setCommunityOwnedDate(dateFormat.parse(d));
+    }
+    public int getFavoriteCount()
+    {
+        return favoriteCount;
+    }
+    public void setFavoriteCount(int favoriteCount)
+    {
+        this.favoriteCount = favoriteCount;
+    }
     public int getCommentCount()
     {
         return commentCount;
@@ -47,14 +77,23 @@ public class Post
         this.answerCount = answerCount;
     }
 
-    public String getTags()
+    public ArrayList<String> getTags()
     {
         return tags;
     }
 
-    public void setTags(String tags)
+    public void setTags(ArrayList<String> tags)
     {
         this.tags = tags;
+    }
+    public void setTags(String tags)
+    {
+        String s = tags.replaceAll("><", " ");
+        s = s.replaceAll(">", " ");
+        s = s.replaceAll("<", " ");
+        s = s.trim();
+        this.tags = new ArrayList<>(Arrays.asList(s.split(" ")));
+        
     }
 
     public String getTitle()
@@ -83,13 +122,33 @@ public class Post
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
         this.setLastActivityDate(dateFormat.parse(d));
     }
+    
+    public String getLastEditorDisplayName()
+    {
+        return lastEditorDisplayName;
+    }
 
-    public long getOwnerUserId()
+    public void setLastEditorDisplayName(String lastEditorDisplayName)
+    {
+        this.lastEditorDisplayName = lastEditorDisplayName;
+    }
+    
+    public int getLastEditorUserId()
+    {
+        return lastEditorUserId;
+    }
+
+    public void setLastEditorUserId(int lastEditorUserId)
+    {
+        this.lastEditorUserId = lastEditorUserId;
+    }
+
+    public int getOwnerUserId()
     {
         return ownerUserId;
     }
 
-    public void setOwnerUserId(long ownerUserId)
+    public void setOwnerUserId(int ownerUserId)
     {
         this.ownerUserId = ownerUserId;
     }
@@ -141,13 +200,40 @@ public class Post
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
         this.setCreationDate(dateFormat.parse(d));
     }
+    
+    public Date getLastEditDate()
+    {
+        return lastEditDate;
+    }
 
-    public long getParentId()
+    public void setLastEditDate(Date lastEditDate)
+    {
+        this.lastEditDate = lastEditDate;
+    }
+    public void setLastEditDate(String CreationDate) throws ParseException
+    {
+        String d = CreationDate.replaceAll("T", " ");
+        final String NEW_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
+        this.setLastEditDate(dateFormat.parse(d));
+    }
+    
+    public int getAcceptedAnswerId()
+    {
+        return acceptedAnswerId;
+    }
+
+    public void setAcceptedAnswerId(int acceptedAnswerId)
+    {
+        this.acceptedAnswerId = acceptedAnswerId;
+    }
+
+    public int getParentId()
     {
         return parentId;
     }
 
-    public void setParentId(long parentId)
+    public void setParentId(int parentId)
     {
         this.parentId = parentId;
     }
@@ -162,12 +248,12 @@ public class Post
         this.postTypeId = PostTypeId;
     }
 
-    public long getId()
+    public int getId()
     {
         return id;
     }
 
-    public void setId(long Id)
+    public void setId(int Id)
     {
         this.id = Id;
     }
@@ -177,15 +263,19 @@ public class Post
     {
         if (nnm.getNamedItem("Id") != null)
         {
-            this.setId(Long.parseLong(nnm.getNamedItem("Id").getFirstChild().getTextContent()));
+            this.setId(Integer.parseInt(nnm.getNamedItem("Id").getFirstChild().getTextContent()));
         }
         if (nnm.getNamedItem("PostTypeId") != null)
         {
             this.setPostTypeId(Integer.parseInt(nnm.getNamedItem("PostTypeId").getFirstChild().getTextContent()));
         }
+        if (nnm.getNamedItem("AcceptedAnswerId") != null)
+        {
+            this.setAcceptedAnswerId(Integer.parseInt(nnm.getNamedItem("AcceptedAnswerId").getFirstChild().getTextContent()));
+        }
         if (nnm.getNamedItem("ParentId") != null)
         {
-            this.setParentId(Long.parseLong(nnm.getNamedItem("ParentId").getFirstChild().getTextContent()));
+            this.setParentId(Integer.parseInt(nnm.getNamedItem("ParentId").getFirstChild().getTextContent()));
         }
         if (nnm.getNamedItem("CreationDate") != null)
         {
@@ -205,7 +295,19 @@ public class Post
         }
         if (nnm.getNamedItem("OwnerUserId") != null)
         {
-            this.setOwnerUserId(Long.parseLong(nnm.getNamedItem("OwnerUserId").getFirstChild().getTextContent()));
+            this.setOwnerUserId(Integer.parseInt(nnm.getNamedItem("OwnerUserId").getFirstChild().getTextContent()));
+        }
+        if (nnm.getNamedItem("LastEditorUserId") != null)
+        {
+            this.setLastEditorUserId(Integer.parseInt(nnm.getNamedItem("LastEditorUserId").getFirstChild().getTextContent()));
+        }
+        if (nnm.getNamedItem("LastEditorDisplayName") != null)
+        {
+            this.setLastEditorDisplayName(nnm.getNamedItem("LastEditorDisplayName").getFirstChild().getTextContent());
+        }
+        if (nnm.getNamedItem("LastEditDate") != null)
+        {
+            this.setLastEditDate(nnm.getNamedItem("LastEditDate").getFirstChild().getTextContent());
         }
         if (nnm.getNamedItem("LastActivityDate") != null)
         {
@@ -227,6 +329,23 @@ public class Post
         {
             this.setCommentCount(Integer.parseInt(nnm.getNamedItem("CommentCount").getFirstChild().getTextContent()));
         }
+        
+        if (nnm.getNamedItem("FavoriteCount") != null)
+        {
+            this.setFavoriteCount(Integer.parseInt(nnm.getNamedItem("FavoriteCount").getFirstChild().getTextContent()));
+        }
+        if (nnm.getNamedItem("CommunityOwnedDate") != null)
+        {
+            this.setCommunityOwnedDate(nnm.getNamedItem("CommunityOwnedDate").getFirstChild().getTextContent());
+        }
 
     }
+
+    @Override
+    public String toString()
+    {
+        return "Post{" + "id=" + id + ", postTypeId=" + postTypeId + ", acceptedAnswerId=" + acceptedAnswerId + ", parentId=" + parentId + ", creationDate=" + creationDate + ", score=" + score + ", viewCount=" + viewCount + ", body=" + body + ", ownerUserId=" + ownerUserId + ", lastEditorUserId=" + lastEditorUserId + ", lastEditorDisplayName=" + lastEditorDisplayName + ", lastEditDate=" + lastEditDate + ", lastActivityDate=" + lastActivityDate + ", title=" + title + ", tags=" + tags + ", answerCount=" + answerCount + ", commentCount=" + commentCount + ", favoriteCount=" + favoriteCount + ", communityOwnedDate=" + communityOwnedDate + '}';
+    }
+    
+    
 }

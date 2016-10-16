@@ -25,8 +25,8 @@ public class Program
                 Indexer i = new Indexer();
                 i.indexPosts(postIndexPath);
             }
-//            Searcher s = new Searcher("./data/index");
-//            s.search();
+            Searcher s = new Searcher("./data/index");
+            s.search();
             
         }
         catch (FileNotFoundException ex)

@@ -43,31 +43,24 @@ public class Searcher
     public Post search() throws IOException, ParseException
     {
         String index = getPostIndexPath();
-        String field = "Title";
-        String queries = null;
-        int repeat = 0;
-        boolean raw = false;
+        String field = "Body";
         String queryString = "int string parse";
 
         int hitsPerPage = 100;
         IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get(index)));
         IndexSearcher searcher = new IndexSearcher(reader);
         Analyzer analyzer = new StandardAnalyzer();
-
-        BufferedReader in = null;
         QueryParser parser = new QueryParser(field, analyzer);
 
         Query query = parser.parse(queryString);
 
         System.out.println("Searching for: " + query.toString(field));
-        searcher.search(query, 100);
-        doSearch(in, searcher, query, hitsPerPage, raw, queries == null && queryString == null);
+        doSearch(searcher, query, hitsPerPage);
         reader.close();
         return null;
     }
     
-    private void doSearch(BufferedReader in, IndexSearcher searcher, Query query,
-            int hitsPerPage, boolean raw, boolean interactive) throws IOException
+    private void doSearch(IndexSearcher searcher, Query query, int hitsPerPage) throws IOException
     {
 
         // Collect enough docs to show 5 pages
@@ -83,7 +76,7 @@ public class Searcher
         for (int i = start; i < end; i++)
         {
             Document doc = searcher.doc(hits[i].doc);
-            String id = doc.get("Id");
+            String id = doc.get("SId");
             if (id != null)
             {
                 System.out.println((i + 1) + ". " + id);
