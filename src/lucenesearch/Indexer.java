@@ -19,12 +19,14 @@ import java.util.stream.Stream;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.IntPoint;
 import org.apache.lucene.document.LegacyLongField;
 import org.apache.lucene.document.LongPoint;
 import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
+import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexableField;
@@ -105,8 +107,8 @@ public class Indexer
                 Post p = new Post(nnm);
                 indexPost(writer, p);
                 System.out.println("Indexing row " + (i++));
-                if(i>1000000)
-                    break;
+//                if(i>1000000)
+//                    break;
             }
 
         }
@@ -124,7 +126,17 @@ public class Indexer
     {
         // make a new, empty document
         org.apache.lucene.document.Document doc = new org.apache.lucene.document.Document();
-
+        
+       //https://gist.github.com/mocobeta/0d2feeb59295bfad157ed06e36fd626ahttps://gist.github.com/mocobeta/0d2feeb59295bfad157ed06e36fd626a
+//        FieldType summaryType = new FieldType();
+//        summaryType.setIndexOptions(IndexOptions.DOCS);
+//        summaryType.setStored(true);
+//        summaryType.setTokenized(true);
+//        summaryType.setStoreTermVectors(true);
+//        summaryType.setStoreTermVectorPositions(true);
+//        summaryType.setStoreTermVectorOffsets(true);
+//        summaryType.setStoreTermVectorPayloads(true);
+       
         doc.add(new IntPoint("Id", p.getId()));
         doc.add(new StoredField("SId",p.getId()));
         

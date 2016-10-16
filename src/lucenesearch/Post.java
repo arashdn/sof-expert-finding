@@ -425,7 +425,25 @@ public class Post
     @Override
     public String toString()
     {
-        return "Post{" + "id=" + id + ", postTypeId=" + postTypeId + ", acceptedAnswerId=" + acceptedAnswerId + ", parentId=" + parentId + ", creationDate=" + creationDate + ", score=" + score + ", viewCount=" + viewCount + ", body=" + body + ", ownerUserId=" + ownerUserId + ", lastEditorUserId=" + lastEditorUserId + ", lastEditorDisplayName=" + lastEditorDisplayName + ", lastEditDate=" + lastEditDate + ", lastActivityDate=" + lastActivityDate + ", title=" + title + ", tags=" + tags + ", answerCount=" + answerCount + ", commentCount=" + commentCount + ", favoriteCount=" + favoriteCount + ", communityOwnedDate=" + communityOwnedDate + '}';
+        return "Post{\n" + "id=" + id + 
+                ", \npostTypeId=" + postTypeId + 
+                ", \nacceptedAnswerId=" + acceptedAnswerId + 
+                ", \nparentId=" + parentId + 
+                ", \ncreationDate=" + creationDate + 
+                ", \nscore=" + score + 
+                ", \nviewCount=" + viewCount + 
+                ", \nbody=" + "..." + 
+                ", \nownerUserId=" + ownerUserId + 
+                ", \nlastEditorUserId=" + lastEditorUserId + 
+                ", \nlastEditorDisplayName=" + lastEditorDisplayName + 
+                ", \nlastEditDate=" + lastEditDate + 
+                ", \nlastActivityDate=" + lastActivityDate + 
+                ", \ntitle=" + title + 
+                ", \ntags=" + tags + 
+                ", \nanswerCount=" + answerCount + 
+                ", \ncommentCount=" + commentCount + 
+                ", \nfavoriteCount=" + favoriteCount + 
+                ", \ncommunityOwnedDate=" + communityOwnedDate + '}';
     }
     
     
