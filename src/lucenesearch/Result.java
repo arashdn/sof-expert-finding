@@ -6,8 +6,6 @@
 package lucenesearch;
 
 import java.util.ArrayList;
-import javax.swing.DefaultListModel;
-import javax.swing.JList;
 
 /**
  *
@@ -23,8 +21,8 @@ public class Result extends javax.swing.JFrame
     public Result(ArrayList<Post> result)
     {
         this.result = result;
-        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         initComponents();
+        this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         ArrayList<String> items = new ArrayList<>();
         for (Post post : result)
         {
@@ -82,8 +80,8 @@ public class Result extends javax.swing.JFrame
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(26, 26, 26)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 585, Short.MAX_VALUE)
                     .addComponent(jScrollPane3))

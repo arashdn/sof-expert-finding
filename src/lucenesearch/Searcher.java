@@ -54,7 +54,11 @@ public class Searcher
     }
     
     
-    public ArrayList<Post> search(boolean body , String bodyTerm , boolean tag , String tags , int type) throws IOException, ParseException
+    public ArrayList<Post> search(boolean body , String bodyTerm ,
+            boolean tag , String tags ,
+            boolean date , long startDate , long endDate ,
+            boolean searchId , int pid,
+            int type)throws IOException, ParseException
     {
         String index = getPostIndexPath();
         String field = "Body";
@@ -79,6 +83,26 @@ public class Searcher
         if(body)
         {
             booleanQuery.add(new QueryParser("Body", analyzer).parse(bodyTerm), BooleanClause.Occur.MUST);
+        }
+        if(tag)
+        {
+            String[] tgs = tags.split(" ");
+            for (String tg : tgs)
+            {
+                booleanQuery.add(new QueryParser("Tags", analyzer).parse(tg), BooleanClause.Occur.MUST);
+            }
+        }
+        if(date)
+        {
+            booleanQuery.add(LongPoint.newRangeQuery("CreationDate", startDate , endDate), BooleanClause.Occur.MUST);
+        }
+        if(type == 1 || type == 2)
+        {
+            booleanQuery.add(IntPoint.newExactQuery("PostTypeId", type), BooleanClause.Occur.MUST);
+        }
+        if(searchId)
+        {
+            booleanQuery.add(IntPoint.newExactQuery("Id", pid), BooleanClause.Occur.MUST);
         }
         
         
