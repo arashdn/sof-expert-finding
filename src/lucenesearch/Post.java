@@ -13,7 +13,7 @@ import org.w3c.dom.NamedNodeMap;
  */
 public class Post
 {
-
+    
     private int id;
     private int postTypeId; 
     private int acceptedAnswerId;
@@ -33,6 +33,18 @@ public class Post
     private int commentCount; 
     private int favoriteCount;
     private Date communityOwnedDate;
+    
+    private ArrayList<Post> Answers;
+
+    public ArrayList<Post> getAnswers()
+    {
+        return Answers;
+    }
+
+    public void setAnswers(ArrayList<Post> Answers)
+    {
+        this.Answers = Answers;
+    }
 
     // <editor-fold desc="Setters and getters" defaultstate="collapsed">
     public Date getCommunityOwnedDate()
@@ -422,6 +434,11 @@ public class Post
 
     }
 
+    public Post()
+    {
+        
+    }
+    
     @Override
     public String toString()
     {

@@ -20,6 +20,10 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.PointRangeQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.Sort;
+import org.apache.lucene.search.SortField;
+import org.apache.lucene.search.SortedNumericSelector;
+import org.apache.lucene.search.SortedNumericSortField;
 import org.apache.lucene.search.TermRangeQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.FSDirectory;
@@ -58,6 +62,7 @@ public class Searcher
             boolean tag , String tags ,
             boolean date , long startDate , long endDate ,
             boolean searchId , int pid,
+            boolean sortByScore,
             int type)throws IOException, ParseException
     {
         String index = getPostIndexPath();
@@ -107,16 +112,23 @@ public class Searcher
         
         
         //System.out.println("Searching for: " + query.toString(field));
-        ArrayList<Post> res = doSearch(searcher, booleanQuery.build(), hitsPerPage);
+        ArrayList<Post> res = doSearch(searcher, booleanQuery.build(), hitsPerPage,sortByScore);
         reader.close();
         return res;
     }
     
-    private ArrayList<Post> doSearch(IndexSearcher searcher, Query query, int hitsPerPage) throws IOException
+    private ArrayList<Post> doSearch(IndexSearcher searcher, Query query, int hitsPerPage , boolean sortByScore) throws IOException
     {
 
         // Collect enough docs to show 5 pages
-        TopDocs results = searcher.search(query, 5 * hitsPerPage);
+        TopDocs results;
+        if(sortByScore)
+        {
+            results = searcher.search(query, 5 * hitsPerPage,new Sort(new SortedNumericSortField("SortScore", SortField.Type.INT,true)));
+        }
+        else
+            results = searcher.search(query, 5 * hitsPerPage);
+        
         ScoreDoc[] hits = results.scoreDocs;
 
         int numTotalHits = results.totalHits;
@@ -135,6 +147,43 @@ public class Searcher
             res.add(p);
         }
         
+        return res;
+    }
+    
+    
+    public ArrayList<Post> searchAnswer(boolean accepted , String questionTerm)throws IOException, ParseException
+    {
+        String index = getPostIndexPath();
+        String field = "Body";
+
+        int hitsPerPage = 35;
+        IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get(index)));
+        IndexSearcher searcher = new IndexSearcher(reader);
+        Analyzer analyzer = new StandardAnalyzer();
+        BooleanQuery.Builder booleanQuery = new BooleanQuery.Builder();
+        booleanQuery.add(new QueryParser("Body", analyzer).parse(questionTerm), BooleanClause.Occur.MUST);
+        booleanQuery.add(IntPoint.newExactQuery("PostTypeId", 1), BooleanClause.Occur.MUST);
+        if(accepted)
+            booleanQuery.add(IntPoint.newRangeQuery("AcceptedAnswerId",1,50000000), BooleanClause.Occur.MUST);
+        //else
+            //booleanQuery.add(IntPoint.newExactQuery("AcceptedAnswerId",0), BooleanClause.Occur.MUST);
+        
+        //System.out.println("Searching for: " + query.toString(field));
+        ArrayList<Post> res = doSearch(searcher, booleanQuery.build(), hitsPerPage,false);
+                
+        for (Post p : res)
+        {
+            booleanQuery = new BooleanQuery.Builder();
+            booleanQuery.add(IntPoint.newExactQuery("ParentId", p.getId()), BooleanClause.Occur.MUST);
+            if(accepted)
+                booleanQuery.add(IntPoint.newExactQuery("Id",p.getAcceptedAnswerId()), BooleanClause.Occur.MUST);
+            else
+                booleanQuery.add(IntPoint.newExactQuery("Id",p.getAcceptedAnswerId()), BooleanClause.Occur.MUST_NOT);
+           ArrayList<Post> ans = doSearch(searcher, booleanQuery.build(), hitsPerPage , false);
+            p.setAnswers(ans);
+        }
+        
+        reader.close();
         return res;
     }
 }

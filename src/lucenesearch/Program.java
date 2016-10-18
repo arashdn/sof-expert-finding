@@ -15,29 +15,29 @@ public class Program
 {
     
 
-//    public static void main2(String[] args) throws ParserConfigurationException, SAXException, ParseException, org.apache.lucene.queryparser.classic.ParseException
-//    {
-//        String postIndexPath = "./data/Posts.xml";
-//        try
-//        {
-//            if(false)
-//            {
-//                Indexer i = new Indexer();
-//                i.indexPosts(postIndexPath);
-//            }
+    public static void main2(String[] args) throws ParserConfigurationException, SAXException, ParseException, org.apache.lucene.queryparser.classic.ParseException
+    {
+        String postIndexPath = "./data/Posts.xml";
+        try
+        {
+            if(false)
+            {
+                Indexer i = new Indexer();
+                i.indexPosts(postIndexPath);
+            }
 //            Searcher s = new Searcher("./data/index");
 //            s.search();
-//            
-//        }
-//        catch (FileNotFoundException ex)
-//        {
-//            Logger.getLogger(Program.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//        catch (IOException ex)
-//        {
-//            Logger.getLogger(Program.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//    }
+            
+        }
+        catch (FileNotFoundException ex)
+        {
+            Logger.getLogger(Program.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        catch (IOException ex)
+        {
+            Logger.getLogger(Program.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 
     public static void main(String args[])
     {

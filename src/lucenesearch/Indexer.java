@@ -21,11 +21,14 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.IntPoint;
+import org.apache.lucene.document.LegacyIntField;
 import org.apache.lucene.document.LegacyLongField;
 import org.apache.lucene.document.LongPoint;
+import org.apache.lucene.document.SortedNumericDocValuesField;
 import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
+import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
@@ -45,9 +48,10 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
  *
  * @author arashdn
  */
+
 public class Indexer
 {
-
+    
     public void indexPosts(String path) throws FileNotFoundException, IOException, SAXException, ParseException
     {
         FileInputStream fstream = new FileInputStream(path);
@@ -160,10 +164,12 @@ public class Indexer
 
         doc.add(new IntPoint("Score", p.getScore()));
         doc.add(new StoredField("SScore",p.getScore()));
-
+        doc.add(new SortedNumericDocValuesField("SortScore",p.getScore()));
+        
         
         doc.add(new IntPoint("ViewCount", p.getViewCount()));
         doc.add(new StoredField("SViewCount",p.getViewCount()));
+        doc.add(new SortedNumericDocValuesField("SortViewCount",p.getViewCount()));
 
         
         
@@ -214,9 +220,11 @@ public class Indexer
 
         doc.add(new IntPoint("CommentCount", p.getCommentCount()));
         doc.add(new StoredField("SCommentCount",p.getCommentCount()));
+        doc.add(new SortedNumericDocValuesField("SortCommentCount",p.getCommentCount()));
 
         doc.add(new IntPoint("FavoriteCount", p.getFavoriteCount()));
         doc.add(new StoredField("SFavoriteCount",p.getFavoriteCount()));
+        doc.add(new SortedNumericDocValuesField("SortFavoriteCount",p.getFavoriteCount()));
 
         if(p.getCommunityOwnedDate()!= null)
         {
