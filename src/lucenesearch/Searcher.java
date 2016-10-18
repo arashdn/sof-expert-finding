@@ -63,6 +63,7 @@ public class Searcher
             boolean date , long startDate , long endDate ,
             boolean searchId , int pid,
             boolean sortByScore,
+            boolean serachParent , int parentId,
             int type)throws IOException, ParseException
     {
         String index = getPostIndexPath();
@@ -108,6 +109,10 @@ public class Searcher
         if(searchId)
         {
             booleanQuery.add(IntPoint.newExactQuery("Id", pid), BooleanClause.Occur.MUST);
+        }
+        if(serachParent)
+        {
+            booleanQuery.add(IntPoint.newExactQuery("ParentId", parentId), BooleanClause.Occur.MUST);
         }
         
         
