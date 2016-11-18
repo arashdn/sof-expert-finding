@@ -16,6 +16,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.stream.Stream;
+import lucenesearch.LuceneTools.LuceneUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Field;
@@ -174,7 +175,9 @@ public class Indexer
         
         
         if(p.getBody() != null)
-            doc.add(new TextField("Body", p.getBody(), Field.Store.YES));
+        {
+            doc.add(new Field("Body", p.getBody(), LuceneUtils.getVectorField()));
+        }
                 
         
         if(p.getOwnerUserId()!= 0)
