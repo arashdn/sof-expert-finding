@@ -15,6 +15,8 @@ import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Stream;
 import lucenesearch.LuceneTools.LuceneUtils;
 import org.apache.lucene.analysis.Analyzer;
@@ -251,5 +253,108 @@ public class Indexer
 //           writer.updateDocument(new Term("path", file.toString()), doc);
             throw new NotImplementedException();
         }
+    }
+    
+    public void indexJavaPosts(String path) throws FileNotFoundException, IOException, SAXException, ParseException
+    {
+        
+        FileInputStream fstream = new FileInputStream("data/Q_A.txt");
+        BufferedReader br = new BufferedReader(new InputStreamReader(fstream));
+        
+        String line;
+        int ii = 0;
+        Set<Integer> set = new TreeSet<>();
+        
+        line = br.readLine();//skip first line
+        while ((line = br.readLine()) != null)
+        {
+            String[] split = line.split(",");
+            if(split.length == 1)
+                continue;
+            int q = Integer.parseInt(split[0].trim());
+            int a = Integer.parseInt(split[1].trim());
+            set.add(a);
+            set.add(q);
+           
+            //System.out.println((ii++)+"");
+        }
+        System.out.println("Len: "+set.size());
+        
+        
+        fstream = new FileInputStream(path);
+        br = new BufferedReader(new InputStreamReader(fstream));
+
+        //skip first two lines which contains xml definations
+        br.readLine();
+        br.readLine();
+
+        String strLine;
+
+        boolean create = true;
+        Date start = new Date();
+        Directory dir = FSDirectory.open(Paths.get("./data/index_java"));
+        Analyzer analyzer = new StandardAnalyzer();
+        IndexWriterConfig iwc = new IndexWriterConfig(analyzer);
+
+        if (create)
+        {
+            // Create a new index in the directory, removing any
+            // previously indexed documents:
+            iwc.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
+        }
+        else
+        {
+            // Add new documents to an existing index:
+            iwc.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
+        }
+
+        // Optional: for better indexing performance, if you
+        // are indexing many documents, increase the RAM
+        // buffer.  But if you do this, increase the max heap
+        // size to the JVM (eg add -Xmx512m or -Xmx1g):
+        //
+        iwc.setRAMBufferSizeMB(1024.0);
+        IndexWriter writer = new IndexWriter(dir, iwc);
+
+
+        //Read File Line By Line
+        long i = 1;
+        int indexed = 0;
+        while ((strLine = br.readLine()) != null)
+        {
+            if(strLine.contains("</posts>"))
+            {
+                writer.close();
+                System.out.println("Completed on: "+i);
+            }
+            else
+            {
+                InputSource is = new InputSource(new StringReader(strLine));
+                DOMParser dp = new DOMParser();
+                dp.parse(is);
+                Document doc = dp.getDocument();
+                NodeList nl = doc.getElementsByTagName("row");
+                Node n = nl.item(0);
+                NamedNodeMap nnm = n.getAttributes();
+                if (nnm.getNamedItem("Id") != null && set.contains(Integer.parseInt(nnm.getNamedItem("Id").getFirstChild().getTextContent())))
+                {
+                    Post p = new Post(nnm);
+                    indexPost(writer, p);
+                    System.out.println("row " + i+" indexed "+(++indexed));
+                }
+                i++;
+//                if(i>1000000)
+//                    break;
+            }
+
+        }
+
+        //Close the input stream
+        br.close();
+        if(writer.isOpen())
+            writer.close();
+        Date end = new Date();
+        System.out.println(end.getTime() - start.getTime() + " total milliseconds");
+
     }
 }

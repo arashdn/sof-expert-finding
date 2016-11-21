@@ -291,7 +291,7 @@ public class MutualInformation
         sorted_map.putAll(res);
         
         
-        int len = Math.min(sorted_map.size(), 500);
+        int len = Math.min(sorted_map.size(), 300);
         System.out.println("Len: "+len);
         ArrayList<String> topWords = new ArrayList<>();
         Iterator it = sorted_map.entrySet().iterator();
@@ -332,13 +332,16 @@ public class MutualInformation
         
         Collections.sort(finalWords);
         
+        ArrayList<String> resWords = new ArrayList<>();
+        
         for (Word finalWord : finalWords)
         {
+            resWords.add(finalWord.getTerm());
             System.out.println(finalWord);
         }
 
+        return resWords;
         
-        return topWords;
     }
 }
 

@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,8 +66,15 @@ public class Balog
         
     }
     
-    public double balog1(String bodyTerm,String goldenFile) throws IOException, ParseException
+    public double balog1(String bodyTerm) throws IOException, ParseException
     {
+        return balog1(bodyTerm, true);
+    }
+    
+    public double balog1(String bodyTerm , boolean printDebug) throws IOException, ParseException
+    {
+        
+        String goldenFile = Utility.getGoldenFileName(bodyTerm);
         
         int hitsPerPage = 500000;
 
@@ -94,7 +102,8 @@ public class Balog
         results = searcher.search(q , 5 * hitsPerPage);
         ScoreDoc[] hits = results.scoreDocs;
         int numTotalHits = results.totalHits;
-        System.out.println(numTotalHits + " Total document found.");
+        if(printDebug)
+            System.out.println(numTotalHits + " Total document found.");
         int start = 0;
         int end = Math.min(numTotalHits, hitsPerPage); 
 
@@ -127,7 +136,8 @@ public class Balog
                 errorUsers++;
             }
         }
-        System.out.println("Users ready , "+errorUsers+" answers with out userId");
+        if(printDebug)
+            System.out.println("Users ready , "+errorUsers+" answers with out userId");
         
                 
         
@@ -140,9 +150,9 @@ public class Balog
             queryTokens.add(tstream.getAttribute(CharTermAttribute.class).toString());
         }
         tstream.close();
-        System.out.println("Query Len: "+queryTokens.size());
-        
-
+        if(printDebug)
+            System.out.println("Query Len: "+queryTokens.size());
+                
         double score;
         HashMap<Integer, Double > userScores = new HashMap<>();
         for (Map.Entry<Integer, ArrayList<Integer>> entry : users.entrySet()) 
@@ -156,7 +166,7 @@ public class Balog
                 for (int uid : entry.getValue())
                 {
                     ExtendedDocument ed = new ExtendedDocument(uid, reader);
-                    tmp += (  (double)(ed.getTermFrequency("Body").get(t))   / (double)ed.getTermsCount("Body")   )*1;//1 is p(d|e)
+                    tmp += (  (double)(ed.getTermFrequency("Body").get(t) == null ? 0 : ed.getTermFrequency("Body").get(t))   / (double)ed.getTermsCount("Body")   )*1;//1 is p(d|e)
                     totalLen += ed.getTermsCount("Body");
                     totalTerm += ed.getTermsCount("Body");
                 }// for d in De
@@ -184,12 +194,42 @@ public class Balog
 
         for (Map.Entry<Integer, Double> entry : sorted_map.entrySet()) 
         {
-            System.out.println("{" + entry.getKey() + " } -> "+entry.getValue());
+            if(printDebug)
+                System.out.println("{" + entry.getKey() + " } -> "+entry.getValue());
             lst.add(entry.getKey());
         }
         double map = new Evaluator().map(lst, getGoldenList(goldenFile));
-        System.out.println("MAP= "+map);
+        if(printDebug)
+            System.out.println("MAP= "+map);
         return map;
                         
     }
+    
+    public ArrayList<EvalResult> balog1ForAllTags() throws IOException, ParseException
+    {
+        ArrayList<String> tags = Utility.getTags();
+        ArrayList<EvalResult> res = new ArrayList<>();
+        double map;
+        for (String tag : tags)
+        {
+            System.out.print(tag+": ");
+            map = balog1(tag,false);
+            EvalResult er = new EvalResult();
+            er.setMap(map);
+            er.setTag(tag);
+            System.out.println(map);
+            res.add(er);
+        }
+        
+        Collections.sort(res);
+        double sum = 0;
+        for (EvalResult re : res)
+        {
+            sum += re.getMap();
+            System.out.println(re);
+        }
+        System.out.println("Avg Map: "+(sum/res.size()));
+        return res;
+    }
+    
 }
