@@ -32,6 +32,21 @@ public class Evaluator
             }
 
         }
-        return sum / golden.size();//to normalize
+        return sum / golden.size();
+    }
+    
+    public double precisionAtK(ArrayList<Integer> a , ArrayList<Integer> golden , int k)
+    {
+        int countRel = 0;
+
+        for (int i = 0; i < k; i++) 
+        {
+            if (expertExist(golden, a.get(i))) 
+            {
+                countRel++;
+            }
+
+        }
+        return (double)countRel / k;
     }
 }

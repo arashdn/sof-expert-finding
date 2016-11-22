@@ -12,6 +12,24 @@ class EvalResult implements Comparable<EvalResult>
     private double p5;
     private double p10;
 
+    public EvalResult()
+    {
+    }
+    
+    
+
+    public EvalResult(String tag, double map, double p1, double p5, double p10)
+    {
+        this.setTag(tag);
+        this.setMap(map);
+        this.setP1(p1);
+        this.setP5(p5);
+        this.setP10(p10);
+    }
+    
+    
+    
+
     public String getTag()
     {
         return tag;

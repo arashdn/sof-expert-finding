@@ -66,15 +66,23 @@ public class Balog
         
     }
     
-    public double balog1(String bodyTerm) throws IOException, ParseException
+    public EvalResult balog1(String bodyTerm) throws IOException, ParseException
     {
-        return balog1(bodyTerm, true);
+        return balog1(bodyTerm, true, null);
     }
     
-    public double balog1(String bodyTerm , boolean printDebug) throws IOException, ParseException
+    public EvalResult balog1(String bodyTerm , boolean printDebug) throws IOException, ParseException
     {
-        
-        String goldenFile = Utility.getGoldenFileName(bodyTerm);
+        return balog1(bodyTerm, printDebug, null);
+    }
+    
+    public EvalResult balog1(String bodyTerm , boolean printDebug , String goldenName) throws IOException, ParseException
+    {
+        String goldenFile;
+        if(goldenName == null)
+            goldenFile = Utility.getGoldenFileName(bodyTerm);
+        else
+            goldenFile = Utility.getGoldenFileName(goldenName);
         
         int hitsPerPage = 500000;
 
@@ -175,6 +183,7 @@ public class Balog
                 double size_col = lu.getCountOfAllTerms("Body");
                 
                 double lambda = getLambda((double)totalTerm/users.size(), totalLen);
+                //double lambda = 0.5;
                 
                 if(score == -1)
                     score = (1-lambda)*tmp + lambda* (tf_t_col/size_col);
@@ -198,10 +207,14 @@ public class Balog
                 System.out.println("{" + entry.getKey() + " } -> "+entry.getValue());
             lst.add(entry.getKey());
         }
-        double map = new Evaluator().map(lst, getGoldenList(goldenFile));
+        Evaluator ev = new Evaluator();
+        double map = ev.map(lst, getGoldenList(goldenFile));
+        double p1 = ev.precisionAtK(lst, getGoldenList(goldenFile),1);
+        double p5 = ev.precisionAtK(lst, getGoldenList(goldenFile),5);
+        double p10 = ev.precisionAtK(lst, getGoldenList(goldenFile),10);
         if(printDebug)
             System.out.println("MAP= "+map);
-        return map;
+        return new EvalResult(bodyTerm, map, p1, p5, p10);
                         
     }
     
@@ -213,11 +226,196 @@ public class Balog
         for (String tag : tags)
         {
             System.out.print(tag+": ");
-            map = balog1(tag,false);
-            EvalResult er = new EvalResult();
-            er.setMap(map);
-            er.setTag(tag);
-            System.out.println(map);
+            EvalResult er = balog1(tag,false);
+            System.out.println(er.getMap());
+            res.add(er);
+        }
+        
+        Collections.sort(res);
+        double sum = 0;
+        for (EvalResult re : res)
+        {
+            sum += re.getMap();
+            System.out.println(re);
+        }
+        System.out.println("Avg Map: "+(sum/res.size()));
+        return res;
+    }
+    
+    
+    public EvalResult balog2(String bodyTerm) throws IOException, ParseException
+    {
+        return balog2(bodyTerm, true, null);
+    }
+    
+    public EvalResult balog2(String bodyTerm , boolean printDebug) throws IOException, ParseException
+    {
+        return balog2(bodyTerm, printDebug, null);
+    }
+    
+    public EvalResult balog2(String bodyTerm , boolean printDebug , String goldenName) throws IOException, ParseException
+    {
+        String goldenFile;
+        if(goldenName == null)
+            goldenFile = Utility.getGoldenFileName(bodyTerm);
+        else
+            goldenFile = Utility.getGoldenFileName(goldenName);
+        
+        int hitsPerPage = 500000;
+
+        String index = new Searcher().getPostIndexPath();
+        IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get(index)));
+        IndexSearcher searcher = new IndexSearcher(reader);
+        Analyzer analyzer = new StandardAnalyzer();
+        
+//        float smoothing = 0.7f;
+//        LMJelinekMercerSimilarity sim = new LMJelinekMercerSimilarity(smoothing);
+//        searcher.setSimilarity(sim);
+        
+        BooleanQuery.Builder booleanQuery = new BooleanQuery.Builder();
+        
+                
+        booleanQuery = new BooleanQuery.Builder();
+        booleanQuery.add(IntPoint.newExactQuery("PostTypeId", 2), BooleanClause.Occur.MUST);
+        booleanQuery.add(new QueryParser("Body", analyzer).parse(bodyTerm), BooleanClause.Occur.MUST);
+        
+        
+        
+        Query q = booleanQuery.build();
+                
+        TopDocs results;
+        results = searcher.search(q , 5 * hitsPerPage);
+        ScoreDoc[] hits = results.scoreDocs;
+        int numTotalHits = results.totalHits;
+        if(printDebug)
+            System.out.println(numTotalHits + " Total document found.");
+        int start = 0;
+        int end = Math.min(numTotalHits, hitsPerPage); 
+                
+        
+        ArrayList<String> queryTokens = new ArrayList<>();
+        
+        TokenStream tstream  = analyzer.tokenStream(null, new StringReader(bodyTerm));
+        tstream.reset();
+        while (tstream.incrementToken()) //for term t in query
+        {
+            queryTokens.add(tstream.getAttribute(CharTermAttribute.class).toString());
+        }
+        tstream.close();
+        if(printDebug)
+            System.out.println("Query Len: "+queryTokens.size());
+        
+        
+        
+        HashMap<String, Double > collectionProbForTerms = new HashMap<>();
+        LuceneUtils lu = new LuceneUtils(reader);
+        for(String t : queryTokens)
+        {
+            double tf_t_col = lu.getTermFrequencyInCollection("Body", t);
+            double size_col = lu.getCountOfAllTerms("Body");
+            double p_t_col = (tf_t_col/size_col);
+            collectionProbForTerms.put(t, p_t_col);
+        }//for t in q
+        
+        long docsLen = 0;
+        int docCount = 0;
+                
+        for (int i = start; i < end; i++) // calculate docLen AVg
+        {
+            int docID = hits[i].doc;
+            int uid = -1;
+            Document doc = searcher.doc(docID);
+            
+            ExtendedDocument ed = new ExtendedDocument(docID, reader);
+            docCount++;
+            docsLen += ed.getTermsCount("Body");
+        }
+        double beta = (double)docsLen/docCount;    
+        if(printDebug)
+            System.out.println("Avg DocsLen: "+beta);
+        
+        double score;
+        int errorUsers = 0;
+        HashMap<Integer, Double > userScores = new HashMap<>();
+        
+        for (int i = start; i < end; i++)
+        {
+            int docID = hits[i].doc;
+            int uid = -1;
+            Document doc = searcher.doc(docID);
+            try
+            {
+                uid = Integer.parseInt(doc.get("SOwnerUserId"));
+            }
+            catch (Exception ex)
+            {
+                errorUsers++;
+                continue;
+            }
+            
+            ExtendedDocument ed = new ExtendedDocument(docID, reader);
+            double lambda = getLambda(beta, ed.getTermsCount("Body"));
+            
+            score = -1;
+            for(String t : queryTokens)
+            {
+                double p_t_d = (double)(ed.getTermFrequency("Body").get(t) == null ? 0 : ed.getTermFrequency("Body").get(t))   / (double)ed.getTermsCount("Body");
+                double p_t_col = collectionProbForTerms.get(t);
+                if(score == -1)
+                    score = ( (1-lambda)*p_t_d ) + (lambda + p_t_col);
+                else
+                    score *= ( (1-lambda)*p_t_d ) + (lambda + p_t_col);
+            }//for t in q
+            
+            double p_d_e = 1;
+            double totScore = score * p_d_e;
+             if(userScores.containsKey(uid))
+            {
+                double oldScore = userScores.get(uid);
+                userScores.replace(uid, totScore+oldScore);
+            }
+            else
+            {
+                userScores.put(uid, totScore );
+            }
+        }
+        
+        if(printDebug)
+            System.out.println("Result ready , "+errorUsers+" answers with out userId");
+        
+        ValueComparator bvc = new ValueComparator(userScores);
+        TreeMap<Integer, Double> sorted_map = new TreeMap<Integer, Double>(bvc);
+        sorted_map.putAll(userScores);
+        
+        ArrayList<Integer> lst = new ArrayList<>();
+
+        for (Map.Entry<Integer, Double> entry : sorted_map.entrySet()) 
+        {
+            if(printDebug)
+                System.out.println("{" + entry.getKey() + " } -> "+entry.getValue());
+            lst.add(entry.getKey());
+        }
+        Evaluator ev = new Evaluator();
+        double map = ev.map(lst, getGoldenList(goldenFile));
+        double p1 = ev.precisionAtK(lst, getGoldenList(goldenFile),1);
+        double p5 = ev.precisionAtK(lst, getGoldenList(goldenFile),5);
+        double p10 = ev.precisionAtK(lst, getGoldenList(goldenFile),10);
+        if(printDebug)
+            System.out.println("MAP= "+map);
+        return new EvalResult(bodyTerm, map, p1, p5, p10);
+                        
+    }
+    
+    public ArrayList<EvalResult> balog2ForAllTags() throws IOException, ParseException
+    {
+        ArrayList<String> tags = Utility.getTags();
+        ArrayList<EvalResult> res = new ArrayList<>();
+        double map;
+        for (String tag : tags)
+        {
+            System.out.print(tag+": ");
+            EvalResult er = balog2(tag,false);
+            System.out.println(er.getMap());
             res.add(er);
         }
         
