@@ -1,6 +1,8 @@
 package lucenesearch;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -66,9 +68,7 @@ class Word implements Comparable<Word>
                 
             booleanQuery = new BooleanQuery.Builder();
             booleanQuery.add(IntPoint.newExactQuery("PostTypeId", 1), BooleanClause.Occur.MUST);
-            booleanQuery.add(new QueryParser("Body", analyzer).parse(this.term), BooleanClause.Occur.MUST);
-
-
+            booleanQuery.add(new QueryParser("Body", analyzer).parse(this.getTerm()), BooleanClause.Occur.MUST);
 
             Query q = booleanQuery.build();
 
@@ -230,6 +230,10 @@ public class MutualInformation
 {
     public ArrayList<String> getTerms(String tag) throws IOException, ParseException
     {
+        return this.getTerms(tag, true);
+    }
+    public ArrayList<String> getTerms(String tag , boolean printDedug) throws IOException, ParseException
+    {
         int hitsPerPage = 100000;
 
         String index = new Searcher().getPostIndexPath();
@@ -252,7 +256,8 @@ public class MutualInformation
         results = searcher.search(q , 2 * hitsPerPage);
         ScoreDoc[] hits = results.scoreDocs;
         int numTotalHits = results.totalHits;
-        System.out.println(numTotalHits + " Total document found.");
+        if(printDedug)
+            System.out.println(numTotalHits + " Total document found.");
         int start = 0;
         int end = Math.min(numTotalHits, hitsPerPage); 
         
@@ -271,6 +276,11 @@ public class MutualInformation
             {
                 Map.Entry pair = (Map.Entry)it.next();
                 String term = (String) pair.getKey();
+                
+                //this term causes lucene parser to crash!!!!!!
+                if(term.equalsIgnoreCase("hh:mm:ss")||term.equalsIgnoreCase("jdbc:oracle:thin"))
+                    continue;
+                
                 long value = (long)pair.getValue();
                 if(res.containsKey(term))
                 {
@@ -292,7 +302,8 @@ public class MutualInformation
         
         
         int len = Math.min(sorted_map.size(), 300);
-        System.out.println("Len: "+len);
+        if(printDedug)
+            System.out.println("Len: "+len);
         ArrayList<String> topWords = new ArrayList<>();
         Iterator it = sorted_map.entrySet().iterator();
         
@@ -301,7 +312,8 @@ public class MutualInformation
         {
             Map.Entry pair = (Map.Entry)it.next();
             topWords.add((String) pair.getKey());
-            System.out.println(pair.getKey() + " => " + pair.getValue());
+            if(printDedug)
+                System.out.println(pair.getKey() + " => " + pair.getValue());
             it.remove(); // avoids a ConcurrentModificationException
             if(++i>=len)
                 break;
@@ -322,13 +334,9 @@ public class MutualInformation
         {
             Word w = new Word(topWord,tag,numTotalHits);
             finalWords.add(w);
-            System.out.println((i++)+": "+w.toString());
+            if(printDedug)
+                System.out.println((i++)+": "+w.toString());
         }
-//        for (String topWord : topWords)
-//        {
-//            finalWords.add(new Word(topWord,tag,numTotalHits));
-//            System.out.println((i++)+" word");
-//        }
         
         Collections.sort(finalWords);
         
@@ -337,11 +345,41 @@ public class MutualInformation
         for (Word finalWord : finalWords)
         {
             resWords.add(finalWord.getTerm());
-            System.out.println(finalWord);
+            if(printDedug)
+                System.out.println(finalWord);
         }
 
         return resWords;
         
+    }
+    
+    public void saveAllTransaltionsByTag(int topWordsCount) throws FileNotFoundException, IOException, ParseException
+    {
+        ArrayList<String> tags = Utility.getTags();
+        ArrayList<String> res = new ArrayList<>();
+       
+        
+        PrintWriter out = new PrintWriter("data/tag_mutuals.txt");
+        int c = 0;
+        for (String tag : tags)
+        {
+            //System.out.print((++c)+"-> "+tag+" => ");
+            String s = tag+"~";
+            res = getTerms(tag,false);
+            int t = topWordsCount;
+            if(res.size()<topWordsCount)
+            {
+                System.out.println("Small res "+res.size());
+                t = res.size();
+            }
+            for (int i = 0; i < t; i++)
+            {
+                s += res.get(i)+ (i == topWordsCount - 1 ?"":",");
+            }
+            out.println(s);
+            System.out.println(s);
+        }
+        out.close();
     }
 }
 

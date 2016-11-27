@@ -2,6 +2,7 @@ package lucenesearch;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -60,7 +61,7 @@ public class Balog
     protected double getLambda(Double beta , Integer len)
     {
         if(beta == null && len == null)
-            return 0.7;
+            return 0.5;
         
         return beta / (double)(beta + len);
         
@@ -75,16 +76,32 @@ public class Balog
     {
         return balog1(bodyTerm, printDebug, null);
     }
-    
     public EvalResult balog1(String bodyTerm , boolean printDebug , String goldenName) throws IOException, ParseException
+    {
+        return balog1(bodyTerm, printDebug, goldenName,null);
+    }
+    
+    public EvalResult balog1(String bodyTerm , boolean printDebug , String goldenName  ,Integer N) throws IOException, ParseException
+    {
+        return balog1(bodyTerm, printDebug, goldenName,N,null);
+    }
+    
+    public EvalResult balog1(String bodyTerm , boolean printDebug , String goldenName  ,Integer N , Double Beta) throws IOException, ParseException
+    {
+        return balog1(bodyTerm, printDebug, goldenName,N,Beta,null);
+    }
+    
+    public EvalResult balog1(String bodyTerm , boolean printDebug , String goldenName , Integer N , Double Beta,Double Lambda) throws IOException, ParseException
     {
         String goldenFile;
         if(goldenName == null)
             goldenFile = Utility.getGoldenFileName(bodyTerm);
         else
             goldenFile = Utility.getGoldenFileName(goldenName);
-        
-        int hitsPerPage = 500000;
+       
+        if(N == null)
+            N = 500000;
+        int hitsPerPage = N;
 
         String index = new Searcher().getPostIndexPath();
         IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get(index)));
@@ -182,8 +199,16 @@ public class Balog
                 double tf_t_col = lu.getTermFrequencyInCollection("Body", t);
                 double size_col = lu.getCountOfAllTerms("Body");
                 
-                double lambda = getLambda((double)totalTerm/users.size(), totalLen);
-                //double lambda = 0.5;
+                double lambda;
+                double beta;
+                if(Beta == null)
+                    beta = (double)totalTerm/users.size();
+                else
+                    beta = Beta;
+                if(Lambda == null)
+                    lambda = getLambda(beta, totalLen);
+                else
+                    lambda = Lambda;
                 
                 if(score == -1)
                     score = (1-lambda)*tmp + lambda* (tf_t_col/size_col);
@@ -253,7 +278,22 @@ public class Balog
         return balog2(bodyTerm, printDebug, null);
     }
     
+    public EvalResult balog2(String bodyTerm , boolean printDebug , String goldenName  ,Integer N) throws IOException, ParseException
+    {
+        return balog2(bodyTerm, printDebug, goldenName,N,null);
+    }
+    
+    public EvalResult balog2(String bodyTerm , boolean printDebug , String goldenName  ,Integer N , Double Beta) throws IOException, ParseException
+    {
+        return balog2(bodyTerm, printDebug, goldenName,N,Beta,null);
+    }
+    
     public EvalResult balog2(String bodyTerm , boolean printDebug , String goldenName) throws IOException, ParseException
+    {
+        return balog2(bodyTerm, printDebug, goldenName,null);
+    }
+    
+    public EvalResult balog2(String bodyTerm , boolean printDebug , String goldenName , Integer N , Double Beta,Double Lambda) throws IOException, ParseException
     {
         String goldenFile;
         if(goldenName == null)
@@ -261,7 +301,9 @@ public class Balog
         else
             goldenFile = Utility.getGoldenFileName(goldenName);
         
-        int hitsPerPage = 500000;
+        if(N == null)
+            N = 500000;
+        int hitsPerPage = N;
 
         String index = new Searcher().getPostIndexPath();
         IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get(index)));
@@ -303,7 +345,7 @@ public class Balog
         }
         tstream.close();
         if(printDebug)
-            System.out.println("Query Len: "+queryTokens.size());
+            System.out.println("Query Len: "+queryTokens.size()+" "+queryTokens);
         
         
         
@@ -330,9 +372,15 @@ public class Balog
             docCount++;
             docsLen += ed.getTermsCount("Body");
         }
-        double beta = (double)docsLen/docCount;    
+        
+        double beta;
+        if(Beta == null)
+            beta = (double)docsLen/docCount;
+        else
+            beta = Beta;
+        
         if(printDebug)
-            System.out.println("Avg DocsLen: "+beta);
+            System.out.println("Avg DocsLen: "+(double)docsLen/docCount);
         
         double score;
         int errorUsers = 0;
@@ -354,7 +402,11 @@ public class Balog
             }
             
             ExtendedDocument ed = new ExtendedDocument(docID, reader);
-            double lambda = getLambda(beta, ed.getTermsCount("Body"));
+            double lambda;
+            if(Lambda == null)
+                lambda = getLambda(beta, ed.getTermsCount("Body"));
+            else
+                lambda = Lambda;
             
             score = -1;
             for(String t : queryTokens)
@@ -414,7 +466,7 @@ public class Balog
         for (String tag : tags)
         {
             System.out.print(tag+": ");
-            EvalResult er = balog2(tag,false);
+            EvalResult er = balog2(tag,false,null,50000);
             System.out.println(er.getMap());
             res.add(er);
         }
@@ -428,6 +480,90 @@ public class Balog
         }
         System.out.println("Avg Map: "+(sum/res.size()));
         return res;
+    }
+    
+    public void balog2ForAllTagsCsv() throws IOException, ParseException
+    {
+        ArrayList<String> tags = Utility.getTags();
+        ArrayList<EvalResult> res = new ArrayList<>();
+        
+        Integer N = 10000;
+        Double Beta = null;
+        Double Lambda = 0.9;
+        
+        PrintWriter out = new PrintWriter("data/res_balog2/N"+N+"_B"+Beta+"_L"+Lambda+".csv");
+        out.println("N,B,L,Query,Map,p@1,p@5,p@10");
+        
+        double sumMap = 0.0;
+        double sumP1 = 0.0;
+        double sumP5 = 0.0;
+        double sumP10 = 0.0;
+        
+        for (String tag : tags)
+        {
+            System.out.print(tag+": ");
+            EvalResult er = balog2(tag,false,null,N,Beta,Lambda);
+            System.out.println(er.getMap());
+            sumMap += er.getMap();
+            sumP1 += er.getP1();
+            sumP5 += er.getP5();
+            sumP10 += er.getP10();
+            out.println(N+","+Beta+","+Lambda+","+tag+","+er.getMap()+","+er.getP1()+","+er.getP5()+","+er.getP10()+",");
+            res.add(er);
+        }
+        out.close();
+        
+        Collections.sort(res);
+        for (EvalResult re : res)
+        {
+            System.out.println(re);
+        }
+        System.out.println("Avg Map: "+(sumMap/res.size()));
+        System.out.println("Avg P1: "+(sumP1/res.size()));
+        System.out.println("Avg P5: "+(sumP5/res.size()));
+        System.out.println("Avg P10: "+(sumP10/res.size()));
+    }
+    
+    public void balog1ForAllTagsCsv() throws IOException, ParseException
+    {
+        ArrayList<String> tags = Utility.getTags();
+        ArrayList<EvalResult> res = new ArrayList<>();
+        
+        Integer N = 10000;
+        Double Beta = null;
+        Double Lambda = 0.7;
+        
+        PrintWriter out = new PrintWriter("data/res_balog1/N"+N+"_B"+Beta+"_L"+Lambda+".csv");
+        out.println("N,B,L,Query,Map,p@1,p@5,p@10");
+        
+        double sumMap = 0.0;
+        double sumP1 = 0.0;
+        double sumP5 = 0.0;
+        double sumP10 = 0.0;
+        
+        for (String tag : tags)
+        {
+            System.out.print(tag+": ");
+            EvalResult er = balog1(tag,false,null,N,Beta,Lambda);
+            System.out.println(er.getMap());
+            sumMap += er.getMap();
+            sumP1 += er.getP1();
+            sumP5 += er.getP5();
+            sumP10 += er.getP10();
+            out.println(N+","+Beta+","+Lambda+","+tag+","+er.getMap()+","+er.getP1()+","+er.getP5()+","+er.getP10()+",");
+            res.add(er);
+        }
+        out.close();
+        
+        Collections.sort(res);
+        for (EvalResult re : res)
+        {
+            System.out.println(re);
+        }
+        System.out.println("Avg Map: "+(sumMap/res.size()));
+        System.out.println("Avg P1: "+(sumP1/res.size()));
+        System.out.println("Avg P5: "+(sumP5/res.size()));
+        System.out.println("Avg P10: "+(sumP10/res.size()));
     }
     
 }
