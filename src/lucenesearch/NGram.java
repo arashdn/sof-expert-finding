@@ -67,7 +67,12 @@ public class NGram
     
     public void getNGram(int n) throws IOException, ParseException
     {
-        int hitsPerPage = 10000000;
+        getNGram(n , 10000000);
+    }
+    
+    public void getNGram(int n , int hitPP) throws IOException, ParseException
+    {
+        int hitsPerPage = hitPP;
         
         String index = new Searcher().getPostIndexPath();
         IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get(index)));

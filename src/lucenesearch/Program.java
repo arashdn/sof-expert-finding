@@ -76,12 +76,39 @@ public class Program
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable()
+        if(args == null || args.length == 0)
         {
-            public void run()
+            java.awt.EventQueue.invokeLater(new Runnable()
             {
-                new MainForm().setVisible(true);
+                public void run()
+                {
+                    new MainForm().setVisible(true);
+                }
+            });
+        }
+        else
+        {
+            if(args[0].equalsIgnoreCase("ngram"))
+            {
+                try 
+                {
+                    int n = Integer.parseInt(args[1]);
+                    int hit = Integer.parseInt(args[2]);
+                    new NGram().getNGram(n,hit);
+                }
+                catch (IOException ex) {
+                    Logger.getLogger(Program.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                catch (org.apache.lucene.queryparser.classic.ParseException ex)
+                {
+                    Logger.getLogger(Program.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
-        });
+            else
+            {
+                System.out.println("Invalid Arg");
+            }
+        }
     }
+    
 }
