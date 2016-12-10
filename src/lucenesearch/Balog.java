@@ -489,7 +489,7 @@ public class Balog
         
         Integer N = 10000;
         Double Beta = null;
-        Double Lambda = 0.9;
+        Double Lambda = 1.0;
         
         PrintWriter out = new PrintWriter("data/res_balog2/N"+N+"_B"+Beta+"_L"+Lambda+".csv");
         out.println("N,B,L,Query,Map,p@1,p@5,p@10");
@@ -531,7 +531,7 @@ public class Balog
         
         Integer N = 10000;
         Double Beta = null;
-        Double Lambda = 0.7;
+        Double Lambda = 1.0;
         
         PrintWriter out = new PrintWriter("data/res_balog1/N"+N+"_B"+Beta+"_L"+Lambda+".csv");
         out.println("N,B,L,Query,Map,p@1,p@5,p@10");
