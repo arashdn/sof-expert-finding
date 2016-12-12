@@ -103,16 +103,17 @@ public class NGram
             ArrayList<String[]> tmp = getNGrams(new ExtendedDocument(hits[i].doc, reader),n);
             for (String[] ngrams : tmp)
             {
+                sb = new StringBuilder();
                 sb.append(doc.get("SId"));
                 sb.append(",");
                 sb.append(toTabbedStr(ngrams));
                 sb.append(",");
                 sb.append(implodeTabbed(tags.get(Integer.parseInt(doc.get("SId")))));
                 sb.append("\n");
+                pw.print(sb.toString());
             }
             
         }
-        pw.print(sb.toString());
         pw.close();
     }
     
@@ -168,33 +169,24 @@ public class NGram
         ArrayList<String[]> res = new ArrayList<>();
         
         
-        HashSet<String> wordsTemp = new HashSet<>();
-        
-        
         Terms t = doc.getTermVector("Body");
         TermsEnum itr = t.iterator();
         BytesRef term;
+        ArrayList<String> terms = new ArrayList<>();
         while ((term = itr.next()) != null)
         {
             String termText = term.utf8ToString();
-            wordsTemp.add(termText);
+            terms.add(termText);
         }
+                        
+        int n = terms.size();
         
-        ArrayList<String> words = new ArrayList<>();
-        
-        words.addAll(wordsTemp);
-        
-        int n = words.size();
-        
-        for (int i = 0; i < n; i++)
+        for (int i = 1; i < n; i++)
         {
-            for (int j = i+1; j < n; j++)
-            {
-                String [] tmp = new String[2];
-                tmp[0] = words.get(i);
-                tmp[1] = words.get(j);
-                res.add(tmp);
-            }
+            String [] temp = new String[2];
+            temp[0] = terms.get(i-1);
+            temp[1] = terms.get(i);
+            res.add(temp);
         }
         
         return res;
@@ -205,45 +197,31 @@ public class NGram
         ArrayList<String[]> res = new ArrayList<>();
         
         
-        HashSet<String> wordsTemp = new HashSet<>();
-        
-        
         Terms t = doc.getTermVector("Body");
         TermsEnum itr = t.iterator();
         BytesRef term;
+        ArrayList<String> terms = new ArrayList<>();
         while ((term = itr.next()) != null)
         {
             String termText = term.utf8ToString();
-            wordsTemp.add(termText);
+            terms.add(termText);
         }
+                        
+        int n = terms.size();
         
-        ArrayList<String> words = new ArrayList<>();
-        
-        words.addAll(wordsTemp);
-        
-        int n = words.size();
-        
-        for (int i = 0; i < n; i++)
+        for (int i = 3; i < n; i++)
         {
-            for (int j = i+1; j < n; j++)
-            {
-                for (int k = j+1; k < n; k++)
-                {
-                    for (int l = k+1; l < n; l++)
-                    {
-                        String [] tmp = new String[4];
-                        tmp[0] = words.get(i);
-                        tmp[1] = words.get(j);
-                        tmp[2] = words.get(k);
-                        tmp[3] = words.get(l);
-                        res.add(tmp);
-                    }
-                }
-            }
+            String [] temp = new String[4];
+            temp[0] = terms.get(i-3);
+            temp[1] = terms.get(i-2);
+            temp[2] = terms.get(i-1);
+            temp[3] = terms.get(i);
+            res.add(temp);
         }
         
         return res;
     }
+
 
     private String implodeTabbed(ArrayList<String> tags)
     {

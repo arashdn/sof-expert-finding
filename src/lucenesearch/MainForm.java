@@ -350,7 +350,7 @@ public class MainForm extends javax.swing.JFrame
     {//GEN-HEADEREND:event_jButton10ActionPerformed
         try
         {
-            new NGram().getNGram(4);
+            new NGram().getNGram(1,2000);
         }
         catch (IOException ex)
         {
