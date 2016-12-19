@@ -288,6 +288,8 @@ public class Balog
         return balog2(bodyTerm, printDebug, goldenName,N,Beta,null);
     }
     
+
+    
     public EvalResult balog2(String bodyTerm , boolean printDebug , String goldenName) throws IOException, ParseException
     {
         return balog2(bodyTerm, printDebug, goldenName,null);
@@ -301,139 +303,7 @@ public class Balog
         else
             goldenFile = Utility.getGoldenFileName(goldenName);
         
-        if(N == null)
-            N = 500000;
-        int hitsPerPage = N;
-
-        String index = new Searcher().getPostIndexPath();
-        IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get(index)));
-        IndexSearcher searcher = new IndexSearcher(reader);
-        Analyzer analyzer = new StandardAnalyzer();
-        
-//        float smoothing = 0.7f;
-//        LMJelinekMercerSimilarity sim = new LMJelinekMercerSimilarity(smoothing);
-//        searcher.setSimilarity(sim);
-        
-        BooleanQuery.Builder booleanQuery = new BooleanQuery.Builder();
-        
-                
-        booleanQuery = new BooleanQuery.Builder();
-        booleanQuery.add(IntPoint.newExactQuery("PostTypeId", 2), BooleanClause.Occur.MUST);
-        booleanQuery.add(new QueryParser("Body", analyzer).parse(bodyTerm), BooleanClause.Occur.MUST);
-        
-        
-        
-        Query q = booleanQuery.build();
-                
-        TopDocs results;
-        results = searcher.search(q , 5 * hitsPerPage);
-        ScoreDoc[] hits = results.scoreDocs;
-        int numTotalHits = results.totalHits;
-        if(printDebug)
-            System.out.println(numTotalHits + " Total document found.");
-        int start = 0;
-        int end = Math.min(numTotalHits, hitsPerPage); 
-                
-        
-        ArrayList<String> queryTokens = new ArrayList<>();
-        
-        TokenStream tstream  = analyzer.tokenStream(null, new StringReader(bodyTerm));
-        tstream.reset();
-        while (tstream.incrementToken()) //for term t in query
-        {
-            queryTokens.add(tstream.getAttribute(CharTermAttribute.class).toString());
-        }
-        tstream.close();
-        if(printDebug)
-            System.out.println("Query Len: "+queryTokens.size()+" "+queryTokens);
-        
-        
-        
-        HashMap<String, Double > collectionProbForTerms = new HashMap<>();
-        LuceneUtils lu = new LuceneUtils(reader);
-        for(String t : queryTokens)
-        {
-            double tf_t_col = lu.getTermFrequencyInCollection("Body", t);
-            double size_col = lu.getCountOfAllTerms("Body");
-            double p_t_col = (tf_t_col/size_col);
-            collectionProbForTerms.put(t, p_t_col);
-        }//for t in q
-        
-        long docsLen = 0;
-        int docCount = 0;
-                
-        for (int i = start; i < end; i++) // calculate docLen AVg
-        {
-            int docID = hits[i].doc;
-            int uid = -1;
-            Document doc = searcher.doc(docID);
-            
-            ExtendedDocument ed = new ExtendedDocument(docID, reader);
-            docCount++;
-            docsLen += ed.getTermsCount("Body");
-        }
-        
-        double beta;
-        if(Beta == null)
-            beta = (double)docsLen/docCount;
-        else
-            beta = Beta;
-        
-        if(printDebug)
-            System.out.println("Avg DocsLen: "+(double)docsLen/docCount);
-        
-        double score;
-        int errorUsers = 0;
-        HashMap<Integer, Double > userScores = new HashMap<>();
-        
-        for (int i = start; i < end; i++)
-        {
-            int docID = hits[i].doc;
-            int uid = -1;
-            Document doc = searcher.doc(docID);
-            try
-            {
-                uid = Integer.parseInt(doc.get("SOwnerUserId"));
-            }
-            catch (Exception ex)
-            {
-                errorUsers++;
-                continue;
-            }
-            
-            ExtendedDocument ed = new ExtendedDocument(docID, reader);
-            double lambda;
-            if(Lambda == null)
-                lambda = getLambda(beta, ed.getTermsCount("Body"));
-            else
-                lambda = Lambda;
-            
-            score = -1;
-            for(String t : queryTokens)
-            {
-                double p_t_d = (double)(ed.getTermFrequency("Body").get(t) == null ? 0 : ed.getTermFrequency("Body").get(t))   / (double)ed.getTermsCount("Body");
-                double p_t_col = collectionProbForTerms.get(t);
-                if(score == -1)
-                    score = ( (1-lambda)*p_t_d ) + (lambda + p_t_col);
-                else
-                    score *= ( (1-lambda)*p_t_d ) + (lambda + p_t_col);
-            }//for t in q
-            
-            double p_d_e = 1;
-            double totScore = score * p_d_e;
-             if(userScores.containsKey(uid))
-            {
-                double oldScore = userScores.get(uid);
-                userScores.replace(uid, totScore+oldScore);
-            }
-            else
-            {
-                userScores.put(uid, totScore );
-            }
-        }
-        
-        if(printDebug)
-            System.out.println("Result ready , "+errorUsers+" answers with out userId");
+        HashMap<Integer, Double > userScores = calculateBalog2(N, bodyTerm, printDebug, Beta, Lambda);
         
         ValueComparator bvc = new ValueComparator(userScores);
         TreeMap<Integer, Double> sorted_map = new TreeMap<Integer, Double>(bvc);
@@ -457,6 +327,147 @@ public class Balog
         return new EvalResult(bodyTerm, map, p1, p5, p10);
                         
     }
+
+    public HashMap<Integer, Double> calculateBalog2(Integer N, String bodyTerm, boolean printDebug, Double Beta, Double Lambda) throws ParseException, IOException
+    {
+        HashMap<Integer, Double> userScores;
+        if (N == null)
+        {
+            N = 500000;
+        }
+        int hitsPerPage = N;
+        String index = new Searcher().getPostIndexPath();
+        IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get(index)));
+        IndexSearcher searcher = new IndexSearcher(reader);
+        Analyzer analyzer = new StandardAnalyzer();
+        //        float smoothing = 0.7f;
+//        LMJelinekMercerSimilarity sim = new LMJelinekMercerSimilarity(smoothing);
+//        searcher.setSimilarity(sim);
+
+        BooleanQuery.Builder booleanQuery = new BooleanQuery.Builder();
+        booleanQuery = new BooleanQuery.Builder();
+        booleanQuery.add(IntPoint.newExactQuery("PostTypeId", 2), BooleanClause.Occur.MUST);
+        booleanQuery.add(new QueryParser("Body", analyzer).parse(bodyTerm), BooleanClause.Occur.MUST);
+        Query q = booleanQuery.build();
+        TopDocs results;
+        results = searcher.search(q, 5 * hitsPerPage);
+        ScoreDoc[] hits = results.scoreDocs;
+        int numTotalHits = results.totalHits;
+        if (printDebug)
+        {
+            System.out.println(numTotalHits + " Total document found.");
+        }
+        int start = 0;
+        int end = Math.min(numTotalHits, hitsPerPage);
+        ArrayList<String> queryTokens = new ArrayList<>();
+        TokenStream tstream = analyzer.tokenStream(null, new StringReader(bodyTerm));
+        tstream.reset();
+        while (tstream.incrementToken()) //for term t in query
+        {
+            queryTokens.add(tstream.getAttribute(CharTermAttribute.class).toString());
+        }
+        tstream.close();
+        if (printDebug)
+        {
+            System.out.println("Query Len: " + queryTokens.size() + " " + queryTokens);
+        }
+        HashMap<String, Double> collectionProbForTerms = new HashMap<>();
+        LuceneUtils lu = new LuceneUtils(reader);
+        for (String t : queryTokens)
+        {
+            double tf_t_col = lu.getTermFrequencyInCollection("Body", t);
+            double size_col = lu.getCountOfAllTerms("Body");
+            double p_t_col = (tf_t_col / size_col);
+            collectionProbForTerms.put(t, p_t_col);
+        }//for t in q
+        long docsLen = 0;
+        int docCount = 0;
+        for (int i = start; i < end; i++) // calculate docLen AVg
+        {
+            int docID = hits[i].doc;
+            int uid = -1;
+            Document doc = searcher.doc(docID);
+
+            ExtendedDocument ed = new ExtendedDocument(docID, reader);
+            docCount++;
+            docsLen += ed.getTermsCount("Body");
+        }
+        double beta;
+        if (Beta == null)
+        {
+            beta = (double) docsLen / docCount;
+        }
+        else
+        {
+            beta = Beta;
+        }
+        if (printDebug)
+        {
+            System.out.println("Avg DocsLen: " + (double) docsLen / docCount);
+        }
+        double score;
+        int errorUsers = 0;
+        userScores = new HashMap<>();
+        for (int i = start; i < end; i++)
+        {
+            int docID = hits[i].doc;
+            int uid = -1;
+            Document doc = searcher.doc(docID);
+            Post p = new Post(doc);
+            try
+            {
+                uid = Integer.parseInt(doc.get("SOwnerUserId"));
+            }
+            catch (Exception ex)
+            {
+                errorUsers++;
+                continue;
+            }
+
+            ExtendedDocument ed = new ExtendedDocument(docID, reader);
+            double lambda;
+            if (Lambda == null)
+            {
+                lambda = getLambda(beta, ed.getTermsCount("Body"));
+            }
+            else
+            {
+                lambda = Lambda;
+            }
+
+            score = -1;
+            for (String t : queryTokens)
+            {
+                double p_t_d = (double) (ed.getTermFrequency("Body").get(t) == null ? 0 : ed.getTermFrequency("Body").get(t)) / (double) ed.getTermsCount("Body");
+                double p_t_col = collectionProbForTerms.get(t);
+                if (score == -1)
+                {
+                    score = ((1 - lambda) * p_t_d) + (lambda * p_t_col);
+                }
+                else
+                {
+                    score *= ((1 - lambda) * p_t_d) + (lambda * p_t_col);
+                }
+            }//for t in q
+
+            double p_d_e = 1;
+            double totScore = score * p_d_e;
+            if (userScores.containsKey(uid))
+            {
+                double oldScore = userScores.get(uid);
+                userScores.replace(uid, totScore + oldScore);
+            }
+            else
+            {
+                userScores.put(uid, totScore);
+            }
+        }
+        if (printDebug)
+        {
+            System.out.println("Result ready , " + errorUsers + " answers with out userId");
+        }
+        return userScores;
+    }
     
     public ArrayList<EvalResult> balog2ForAllTags() throws IOException, ParseException
     {
@@ -465,8 +476,8 @@ public class Balog
         double map;
         for (String tag : tags)
         {
-            System.out.print(tag+": ");
-            EvalResult er = balog2(tag,false,null,50000);
+            System.out.print(tag+":");
+            EvalResult er = balog2(tag,false,null,null,null,null);
             System.out.println(er.getMap());
             res.add(er);
         }
@@ -565,5 +576,6 @@ public class Balog
         System.out.println("Avg P5: "+(sumP5/res.size()));
         System.out.println("Avg P10: "+(sumP10/res.size()));
     }
+    
     
 }
