@@ -618,10 +618,13 @@ public class MutualInformation
         out.close();
     }
     
-    
     public void balogKarimZadeganProb(int countWords) throws IOException, ParseException
     {
-        java.nio.file.Path filePath = new java.io.File("data/tag_mutuals_prob.txt").toPath();
+        balogKarimZadeganProb(countWords,false);
+    }
+    public void balogKarimZadeganProb(int countWords, boolean isCode) throws IOException, ParseException
+    {
+        java.nio.file.Path filePath = new java.io.File(isCode?"data/tag_mutuals_prob_code.txt":"data/tag_mutuals_prob.txt").toPath();
         List<String> stringList = Files.readAllLines(filePath);
         
         HashMap<String,ArrayList<ProbTranslate>> tags = new HashMap<>();
