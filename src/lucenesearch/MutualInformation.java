@@ -336,7 +336,7 @@ public class MutualInformation
                 String term = (String) pair.getKey();
                 
                 //this term causes lucene parser to crash!!!!!!
-                if(term.equalsIgnoreCase("hh:mm:ss")||term.equalsIgnoreCase("jdbc:oracle:thin"))
+                if(term.equalsIgnoreCase("hh:mm:ss")||term.equalsIgnoreCase("jdbc:oracle:thin")||term.equalsIgnoreCase("hh:mm:ss.sss"))
                     continue;
                 
                 long value = (long)pair.getValue();
@@ -467,7 +467,7 @@ public class MutualInformation
                 String term = (String) pair.getKey();
                 
                 //this term causes lucene parser to crash!!!!!!
-                if(term.equalsIgnoreCase("hh:mm:ss")||term.equalsIgnoreCase("jdbc:oracle:thin"))
+                if(term.equalsIgnoreCase("hh:mm:ss")||term.equalsIgnoreCase("jdbc:oracle:thin")||term.equalsIgnoreCase("hh:mm:ss.sss"))
                     continue;
                 
                 long value = (long)pair.getValue();
