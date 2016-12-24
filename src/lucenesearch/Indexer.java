@@ -179,6 +179,7 @@ public class Indexer
         if(p.getBody() != null)
         {
             doc.add(new Field("Body", p.getBody(), LuceneUtils.getVectorField()));
+            doc.add(new Field("Code", p.getCode(), LuceneUtils.getVectorField()));
         }
                 
         

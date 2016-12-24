@@ -477,7 +477,7 @@ public class Balog
         for (String tag : tags)
         {
             System.out.print(tag+":");
-            EvalResult er = balog2(tag,false,null,null,null,null);
+            EvalResult er = balog2(tag,false,null,10000,null,0.5);
             System.out.println(er.getMap());
             res.add(er);
         }

@@ -85,18 +85,24 @@ class Word implements Comparable<Word>
     private Integer CXW_U_1;//chand sanad ke w dar anha rokh dade va "tag" has hastan
     private String tag;
     private int N;
+    private boolean isCode;
+    int AllhitsPerPage = 2000;
 
-    public Word(String term,String tag , int N)
+    public Word(String term,String tag , int N, boolean isCode)
     {
-        setTerm(term,tag,N);
+        setTerm(term,tag,N,isCode);
     }
     
+    public Word(String term,String tag , int N)
+    {
+        setTerm(term,tag,N,false);
+    }
 
     public Integer getCXW1() throws IOException, ParseException
     {
         if(CXW1 == null)
         {
-            int hitsPerPage = 1000;
+            int hitsPerPage = this.AllhitsPerPage;
 
             String index = new Searcher().getPostIndexPath();
             IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get(index)));
@@ -108,7 +114,7 @@ class Word implements Comparable<Word>
                 
             booleanQuery = new BooleanQuery.Builder();
             booleanQuery.add(IntPoint.newExactQuery("PostTypeId", 1), BooleanClause.Occur.MUST);
-            booleanQuery.add(new QueryParser("Body", analyzer).parse(this.getTerm()), BooleanClause.Occur.MUST);
+            booleanQuery.add(new QueryParser(this.isCode?"Code":"Body", analyzer).parse(this.getTerm()), BooleanClause.Occur.MUST);
 
             Query q = booleanQuery.build();
 
@@ -125,7 +131,7 @@ class Word implements Comparable<Word>
     {
         if(CXU1 == null)
         {
-            int hitsPerPage = 1000;
+            int hitsPerPage = this.AllhitsPerPage;
 
             String index = new Searcher().getPostIndexPath();
             IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get(index)));
@@ -156,7 +162,7 @@ class Word implements Comparable<Word>
     {
         if(CXW_U_1 == null)
         {
-            int hitsPerPage = 1000;
+            int hitsPerPage = this.AllhitsPerPage;
 
             String index = new Searcher().getPostIndexPath();
             IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get(index)));
@@ -168,7 +174,7 @@ class Word implements Comparable<Word>
                 
             booleanQuery = new BooleanQuery.Builder();
             booleanQuery.add(IntPoint.newExactQuery("PostTypeId", 1), BooleanClause.Occur.MUST);
-                booleanQuery.add(new QueryParser("Body", analyzer).parse(this.term), BooleanClause.Occur.MUST);
+                booleanQuery.add(new QueryParser(this.isCode?"Code":"Body", analyzer).parse(this.term), BooleanClause.Occur.MUST);
             booleanQuery.add(new QueryParser("Tags", analyzer).parse(this.tag), BooleanClause.Occur.MUST);
 
 
@@ -240,7 +246,7 @@ class Word implements Comparable<Word>
         return term;
     }
 
-    public void setTerm(String term, String tag, int N)
+    public void setTerm(String term, String tag, int N, boolean isCode)
     {
         this.term = term;
         this.N = N;
@@ -248,6 +254,7 @@ class Word implements Comparable<Word>
         this.CXW1 = null;
         this.CXU1 = null;
         this.CXW_U_1 = null;
+        this.isCode = isCode;
     }
 
     @Override
@@ -274,11 +281,16 @@ class Word implements Comparable<Word>
 
 public class MutualInformation
 {
+    
     public ArrayList<String> getTerms(String tag) throws IOException, ParseException
     {
         return this.getTerms(tag, true);
     }
     public ArrayList<String> getTerms(String tag , boolean printDedug) throws IOException, ParseException
+    {
+        return this.getTerms(tag, printDedug,false);
+    }
+    public ArrayList<String> getTerms(String tag , boolean printDedug , boolean isCode) throws IOException, ParseException
     {
         int hitsPerPage = 100000;
 
@@ -315,7 +327,7 @@ public class MutualInformation
             Document doc = searcher.doc(docID);
             ExtendedDocument ed = new ExtendedDocument(docID, reader);
             
-            HashMap<String,Long> tmp = ed.getTermFrequency("Body");
+            HashMap<String,Long> tmp = ed.getTermFrequency(isCode?"Code":"Body");
             
             Iterator it = tmp.entrySet().iterator();
             while (it.hasNext()) 
@@ -406,6 +418,11 @@ public class MutualInformation
     
     public ArrayList<ProbTranslate> getTermsAndProb(String tag , boolean printDedug) throws IOException, ParseException
     {
+        return this.getTermsAndProb(tag, printDedug, false);
+    }
+    
+    public ArrayList<ProbTranslate> getTermsAndProb(String tag , boolean printDedug, boolean isCode) throws IOException, ParseException
+    {
         int hitsPerPage = 100000;
 
         String index = new Searcher().getPostIndexPath();
@@ -441,7 +458,7 @@ public class MutualInformation
             Document doc = searcher.doc(docID);
             ExtendedDocument ed = new ExtendedDocument(docID, reader);
             
-            HashMap<String,Long> tmp = ed.getTermFrequency("Body");
+            HashMap<String,Long> tmp = ed.getTermFrequency(isCode?"Code":"Body");
             
             Iterator it = tmp.entrySet().iterator();
             while (it.hasNext()) 
@@ -534,19 +551,23 @@ public class MutualInformation
         
     }
     
-    public void saveAllTransaltionsByTag(int topWordsCount) throws FileNotFoundException, IOException, ParseException
+    public void saveAllTransaltionsByTag(int topWordsCount) throws IOException, FileNotFoundException, ParseException
+    {
+        saveAllTransaltionsByTag(topWordsCount,false);
+    }
+    public void saveAllTransaltionsByTag(int topWordsCount , boolean isCode) throws FileNotFoundException, IOException, ParseException
     {
         ArrayList<String> tags = Utility.getTags();
         ArrayList<String> res = new ArrayList<>();
        
         
-        PrintWriter out = new PrintWriter("data/tag_mutuals.txt");
+        PrintWriter out = new PrintWriter(isCode?"data/tag_mutuals_code.txt":"data/tag_mutuals.txt");
         int c = 0;
         for (String tag : tags)
         {
             //System.out.print((++c)+"-> "+tag+" => ");
             String s = tag+"~";
-            res = getTerms(tag,false);
+            res = getTerms(tag,false,isCode);
             int t = topWordsCount;
             if(res.size()<topWordsCount)
             {
@@ -565,17 +586,22 @@ public class MutualInformation
     
     public void saveAllTransaltionsByTagAndProb(int topWordsCount) throws FileNotFoundException, IOException, ParseException
     {
+        saveAllTransaltionsByTagAndProb(topWordsCount,false);
+    }
+    
+    public void saveAllTransaltionsByTagAndProb(int topWordsCount, boolean isCode) throws FileNotFoundException, IOException, ParseException
+    {
         ArrayList<String> tags = Utility.getTags();
         ArrayList<ProbTranslate> res = new ArrayList<>();
        
         
-        PrintWriter out = new PrintWriter("data/tag_mutuals_prob.txt");
+        PrintWriter out = new PrintWriter(isCode?"data/tag_mutuals_prob_code.txt":"data/tag_mutuals_prob.txt");
         int c = 0;
         for (String tag : tags)
         {
             //System.out.print((++c)+"-> "+tag+" => ");
             String s = tag+"~";
-            res = getTermsAndProb(tag,false);
+            res = getTermsAndProb(tag,false,isCode);
             int t = topWordsCount;
             if(res.size()<topWordsCount)
             {
@@ -593,7 +619,7 @@ public class MutualInformation
     }
     
     
-    public void balogKarimZadeganProb() throws IOException, ParseException
+    public void balogKarimZadeganProb(int countWords) throws IOException, ParseException
     {
         java.nio.file.Path filePath = new java.io.File("data/tag_mutuals_prob.txt").toPath();
         List<String> stringList = Files.readAllLines(filePath);
@@ -606,10 +632,12 @@ public class MutualInformation
             if(tgs.length > 1 && tgs[1] != null && tgs[1] != "")
             {
                 String [] trs = tgs[1].split(",");
-                for (String tr : trs)
+                
+                for (int i = 0; i<countWords ; i++)
                 {
-                    String [] t = tr.split(":");
-                    e.add(new ProbTranslate(t[0], Double.parseDouble(t[1])));
+                    String [] t = trs[i].split(":");
+                    e.add(new ProbTranslate(t[0], 1));
+//                    e.add(new ProbTranslate(t[0], Double.parseDouble(t[1])));
                 }
             }
             else
@@ -624,6 +652,7 @@ public class MutualInformation
         HashMap<Integer, Double > totalUserScores = new HashMap<>();
         while (it.hasNext()) 
         {
+            totalUserScores = new HashMap<>();
             Map.Entry pair = (Map.Entry)it.next();
             String tag = pair.getKey().toString();
             ArrayList<ProbTranslate> trans = (ArrayList<ProbTranslate>) pair.getValue();
@@ -632,7 +661,8 @@ public class MutualInformation
             for (ProbTranslate tran : trans)
             {
                 //System.out.println(tag+" -> "+tran.getWord()+": ");
-                userScores = balog.calculateBalog2(null, tran.getWord(), false, null, null);
+                userScores = null;
+                userScores = balog.calculateBalog2(10000, tran.getWord(), false, null, 0.5);
                 
                 Iterator it2 = userScores.entrySet().iterator();
                 while (it2.hasNext())

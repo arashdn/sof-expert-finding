@@ -58,6 +58,10 @@ public class ExtendedDocument
             termsCount = 0;
             
             termsFrequency = new HashMap<>();
+            if (getTermVector(field) == null)
+            {
+                return;
+            }
             TermsEnum itr = getTermVector(field).iterator();
             BytesRef term;
             while ((term = itr.next()) != null)

@@ -5,6 +5,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.jsoup.Jsoup;
 import org.w3c.dom.NamedNodeMap;
 
 /**
@@ -33,8 +37,20 @@ public class Post
     private int commentCount; 
     private int favoriteCount;
     private Date communityOwnedDate;
-    
     private ArrayList<Post> Answers;
+    private String code;
+    
+    // <editor-fold desc="Setters and getters" defaultstate="collapsed">
+
+    public String getCode()
+    {
+        return code;
+    }
+
+    public void setCode(String code)
+    {
+        this.code = code;
+    }
 
     public ArrayList<Post> getAnswers()
     {
@@ -46,7 +62,6 @@ public class Post
         this.Answers = Answers;
     }
 
-    // <editor-fold desc="Setters and getters" defaultstate="collapsed">
     public Date getCommunityOwnedDate()
     {
         return communityOwnedDate;
@@ -304,6 +319,7 @@ public class Post
         if (nnm.getNamedItem("Body") != null)
         {
             this.setBody(nnm.getNamedItem("Body").getFirstChild().getTextContent());
+            setCode(generateCode());
         }
         if (nnm.getNamedItem("OwnerUserId") != null)
         {
@@ -386,6 +402,10 @@ public class Post
         {
             this.setBody(doc.get("Body"));
         }
+        if (doc.get("Code") != null)
+        {
+            this.setBody(doc.get("Body"));
+        }
         if (doc.get("SOwnerUserId") != null)
         {
             this.setOwnerUserId(Integer.parseInt(doc.get("SOwnerUserId")));
@@ -449,7 +469,8 @@ public class Post
                 ", \ncreationDate=" + creationDate + 
                 ", \nscore=" + score + 
                 ", \nviewCount=" + viewCount + 
-                ", \nbody=" + "..." + 
+                ", \nbody=" + body + 
+                ", \ncode=" + code + 
                 ", \nownerUserId=" + ownerUserId + 
                 ", \nlastEditorUserId=" + lastEditorUserId + 
                 ", \nlastEditorDisplayName=" + lastEditorDisplayName + 
@@ -461,6 +482,29 @@ public class Post
                 ", \ncommentCount=" + commentCount + 
                 ", \nfavoriteCount=" + favoriteCount + 
                 ", \ncommunityOwnedDate=" + communityOwnedDate + '}';
+    }
+
+    private String generateCode()
+    {
+        //String s = getBody();
+//        String s = getBody().replaceAll("\r", "").replaceAll("\n", " ");
+//        final Matcher matcher = Pattern.compile("<code>(.*)<.+code>",Pattern.DOTALL).matcher(s);
+//        StringBuilder sb = new StringBuilder();
+//        while (matcher.find())
+//        {
+//            sb.append(matcher.group(1)).append(" ");
+//        }
+//        return sb.toString();
+        
+        org.jsoup.nodes.Document doc = Jsoup.parse(getBody());
+        org.jsoup.select.Elements paragraphs = doc.select("code");
+        StringBuilder sb = new StringBuilder();
+        for (org.jsoup.nodes.Element p : paragraphs)
+        {
+            sb.append(p.text()).append(" ");
+        }
+        return sb.toString();
+
     }
     
     
