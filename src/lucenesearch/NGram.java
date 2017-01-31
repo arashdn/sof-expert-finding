@@ -61,6 +61,7 @@ public class NGram
                 tg = new ArrayList<>();
                 tags.put(aid, tg);
             }
+            //if(tmp[1] != null && tmp[1] != "" && !tmp[1].equalsIgnoreCase("java"))
             tg.add(tmp[1]);
         }
     }
@@ -100,7 +101,7 @@ public class NGram
         for (int i = start; i < end; i++)
         {
             Document doc = searcher.doc(hits[i].doc);
-            ArrayList<String[]> tmp = getNGrams(new ExtendedDocument(hits[i].doc, reader),n);
+            ArrayList<String[]> tmp = getNGrams(doc,new ExtendedDocument(hits[i].doc, reader),n);
             for (String[] ngrams : tmp)
             {
                 sb = new StringBuilder();
@@ -108,9 +109,11 @@ public class NGram
                 sb.append(",");
                 sb.append(toTabbedStr(ngrams));
                 sb.append(",");
-                sb.append(implodeTabbed(tags.get(Integer.parseInt(doc.get("SId")))));
+                ArrayList<String> tagg = tags.get(Integer.parseInt(doc.get("SId")));
+                sb.append(implodeTabbed(tagg));
                 sb.append("\n");
-                pw.print(sb.toString());
+                if(tagg.size()>1)
+                    pw.print(sb.toString());
             }
             
         }
@@ -129,11 +132,11 @@ public class NGram
         return sb.toString().trim();
     }
     
-    private ArrayList<String[]> getNGrams(ExtendedDocument doc, int n) throws IOException
+    private ArrayList<String[]> getNGrams(Document originalDoc,ExtendedDocument doc, int n) throws IOException
     {
         if(n == 1)
         {
-            return get1Gram(doc);
+            return get1Gram(originalDoc,doc);
         }
         else if(n == 2)
         {
@@ -147,20 +150,30 @@ public class NGram
             return null;
     }
 
-    private ArrayList<String[]> get1Gram(ExtendedDocument doc) throws IOException
+    private ArrayList<String[]> get1Gram(Document originalDoc,ExtendedDocument doc) throws IOException
     {
         ArrayList<String[]> res = new ArrayList<>();
         
-        Terms t = doc.getTermVector("Body");
-        TermsEnum itr = t.iterator();
-        BytesRef term;
-        while ((term = itr.next()) != null)
+//        Terms t = doc.getTermVector("Body");
+//        TermsEnum itr = t.iterator();
+//        BytesRef term;
+//        while ((term = itr.next()) != null)
+//        {
+//            String termText = term.utf8ToString();
+//            String[] tmp= new String[1];
+//            tmp[0] = termText;
+//            res.add(tmp);
+//        }
+        
+        
+        ArrayList<String> t = new lucenesearch.LuceneTools.LuceneUtils(null).getAnalyzedRemoveHtml(originalDoc.get("Body"));
+        for (String termText : t)
         {
-            String termText = term.utf8ToString();
             String[] tmp= new String[1];
             tmp[0] = termText;
             res.add(tmp);
         }
+        
         return res;
     }
 
@@ -228,9 +241,12 @@ public class NGram
         StringBuilder sb = new StringBuilder();
         for (String tag : tags)
         {
-            sb.append(tag).append("\t");
+            if(!tag.equalsIgnoreCase("java"))
+                sb.append(tag).append("\t");
         }
         String res = sb.toString();
+        if(res.length() == 0)
+            res = "#";
         return res.substring(0, res.length()-1);
     }
 
