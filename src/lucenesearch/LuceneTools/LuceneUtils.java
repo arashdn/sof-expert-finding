@@ -10,7 +10,14 @@ import org.apache.lucene.analysis.tokenattributes.TermToBytesRefAttribute;
 import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.IndexReaderContext;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.index.TermContext;
+import org.apache.lucene.search.CollectionStatistics;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.TermStatistics;
+import org.apache.lucene.search.similarities.ClassicSimilarity;
+import org.apache.lucene.util.BytesRef;
 
 /**
  *
@@ -59,8 +66,37 @@ public class LuceneUtils
     
     public long getTermFrequencyInCollection(String field, String term) throws IOException
     {
-                return reader.totalTermFreq(new Term(field, term));
+        return reader.totalTermFreq(new Term(field, term));
 
+    }
+    
+    public double getTFIDFScoreInCollection(String FIELD, String word) throws IOException
+    {
+        
+        IndexSearcher searcher = new IndexSearcher(reader);
+        ClassicSimilarity similarity = new ClassicSimilarity();
+        IndexReaderContext context = searcher.getTopReaderContext();
+        CollectionStatistics collectionStats = searcher.collectionStatistics(FIELD);
+        
+        long totalDocCount = collectionStats.docCount();
+        //Terms termVector = reader.getTermVector(docId, FIELD);
+        //TermsEnum iterator = termVector.iterator(); 
+        
+   
+        BytesRef ref = new BytesRef(word);
+
+        long termFreq = this.getTermFrequencyInCollection(FIELD,word);
+        float tf = similarity.tf(termFreq);
+
+        Term term = new Term(FIELD, ref);
+        TermContext termContext = TermContext.build(context, term);
+
+        TermStatistics termStats = searcher.termStatistics(term, termContext);
+        long docFreq = termStats.docFreq();
+        float idf = similarity.idf(docFreq, totalDocCount);
+
+        return tf*idf;
+        
     }
     
     public static ArrayList<String> getAnalayzed(String token) throws IOException

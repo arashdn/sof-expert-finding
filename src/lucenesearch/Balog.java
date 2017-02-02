@@ -330,6 +330,10 @@ public class Balog
 
     public HashMap<Integer, Double> calculateBalog2(Integer N, String bodyTerm, boolean printDebug, Double Beta, Double Lambda) throws ParseException, IOException
     {
+        return calculateBalog2(N, bodyTerm, printDebug, Beta, Lambda, false, null , "");
+    }
+    public HashMap<Integer, Double> calculateBalog2(Integer N, String bodyTerm, boolean printDebug, Double Beta, Double Lambda , boolean taggedAnswerOnly, HashMap<Integer,ArrayList<String>> tags, String originalTag) throws ParseException, IOException
+    {
         HashMap<Integer, Double> userScores;
         if (N == null)
         {
@@ -422,6 +426,13 @@ public class Balog
             {
                 errorUsers++;
                 continue;
+            }
+            
+            if(taggedAnswerOnly)
+            {
+                ArrayList<String> tg = tags.get(Integer.parseInt(doc.get("SId")));
+                if(!tg.contains(originalTag))
+                    continue;
             }
 
             ExtendedDocument ed = new ExtendedDocument(docID, reader);
