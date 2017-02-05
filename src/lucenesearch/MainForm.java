@@ -594,6 +594,7 @@ public class MainForm extends javax.swing.JFrame
     {//GEN-HEADEREND:event_jButton18ActionPerformed
         try
         {
+            //args: number of words in trans, limit to tagged only, self translation, search answer only
             new Blender("data/tag_mutuals.txt").blendOr(10,true,true,true);
 //            new Blender("data/final_deep_trans_method_2.txt").blendOr(10,true,true,true);
         }
