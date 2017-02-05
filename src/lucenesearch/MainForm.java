@@ -388,7 +388,9 @@ public class MainForm extends javax.swing.JFrame
         {
             //new MutualInformation().getTerms("date");
             //new MutualInformation().getTermsAndProb("c#");
-            new MutualInformation().saveAllTransaltionsByTagAndProb(5);
+//            new MutualInformation().saveAllTransaltionsByTagAndProb(5);
+            new MutualInformation().saveAllTransaltionsByTag(10);
+
         }
         catch (IOException ex)
         {
@@ -592,8 +594,8 @@ public class MainForm extends javax.swing.JFrame
     {//GEN-HEADEREND:event_jButton18ActionPerformed
         try
         {
-//            new Blender("data/tag_mutuals.txt").blendOr(5,true);
-            new Blender("data/final_deep_trans_method_2.txt").blendOr(10);
+            new Blender("data/tag_mutuals.txt").blendOr(10,true,true,true);
+//            new Blender("data/final_deep_trans_method_2.txt").blendOr(10,true,true,true);
         }
         catch (IOException ex)
         {

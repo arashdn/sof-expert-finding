@@ -43,12 +43,16 @@ public class Blender
         getTags();
     }
     
-    
+    private boolean hasTag(int aid, String tag)
+    {
+        return tags.get(aid).contains(tag);
+    }
     
     private void getTags() throws FileNotFoundException, IOException
     {
+        System.out.println("Loading tags started");
         tags = new HashMap<>();
-        BufferedReader br = new BufferedReader(new FileReader("./data/java_a_tag.txt"));
+        BufferedReader br = new BufferedReader(new FileReader("./data/java_all_tag.txt"));
         String line = "";
         while((line = br.readLine()) != null)
         {
@@ -63,6 +67,7 @@ public class Blender
             //if(tmp[1] != null && tmp[1] != "" && !tmp[1].equalsIgnoreCase("java"))
             tg.add(tmp[1]);
         }
+        System.out.println("Loading tags done!");
     }
     
     public void blendAnd(int countWords) throws IOException, ParseException
@@ -205,7 +210,7 @@ public class Blender
     }
 
 
-    public void blendOr(int countWords) throws IOException, ParseException
+    public void blendOr(int countWords, boolean taged, boolean selfTranslate, boolean answerOnly) throws IOException, ParseException
     {
         java.nio.file.Path filePath = new java.io.File(this.filePath).toPath();
         List<String> stringList = Files.readAllLines(filePath);
@@ -242,7 +247,7 @@ public class Blender
             String tag = pair.getKey().toString();
             ArrayList<ProbTranslate> trans = (ArrayList<ProbTranslate>) pair.getValue();
 
-            totalUserScores = getTransaltionScoreOr(10000, trans);
+            totalUserScores = getTransaltionScoreOr(10000, trans, taged?tag:null, selfTranslate, answerOnly);
             
             ValueComparator3 bvc = new ValueComparator3(totalUserScores);
             TreeMap<Integer, Double> sorted_map = new TreeMap<Integer, Double>(bvc);
@@ -268,6 +273,20 @@ public class Blender
 
     public HashMap<Integer, Double> getTransaltionScoreOr(Integer N,ArrayList<ProbTranslate> trans) throws IOException, ParseException
     {
+        return getTransaltionScoreOr(N, trans, null);
+    }
+
+    public HashMap<Integer, Double> getTransaltionScoreOr(Integer N,ArrayList<ProbTranslate> trans,String tag) throws IOException, ParseException
+    {
+        return getTransaltionScoreOr(N, trans, tag, false);
+    }
+    public HashMap<Integer, Double> getTransaltionScoreOr(Integer N,ArrayList<ProbTranslate> trans,String tag,boolean selfTranslate) throws IOException, ParseException
+    {
+        return getTransaltionScoreOr(N, trans, tag, selfTranslate, true);
+    }
+    
+    public HashMap<Integer, Double> getTransaltionScoreOr(Integer N,ArrayList<ProbTranslate> trans,String tag,boolean selfTranslate, boolean answerOnly) throws IOException, ParseException
+    {
         HashMap<Integer, Double> userScores = new HashMap<>();
         if (N == null)
         {
@@ -284,11 +303,20 @@ public class Blender
 
         BooleanQuery.Builder booleanQuery = new BooleanQuery.Builder();
         booleanQuery = new BooleanQuery.Builder();
-        booleanQuery.add(IntPoint.newExactQuery("PostTypeId", 2), BooleanClause.Occur.MUST);
+        if(answerOnly)
+        {
+            booleanQuery.add(IntPoint.newExactQuery("PostTypeId", 2), BooleanClause.Occur.MUST);
+        }
+        
         
         for (ProbTranslate tran : trans)
         {
             booleanQuery.add(new QueryParser("Body", analyzer).parse(tran.getWord()), BooleanClause.Occur.SHOULD);
+
+        }
+        if(selfTranslate)
+        {
+            booleanQuery.add(new QueryParser("Body", analyzer).parse(tag), BooleanClause.Occur.SHOULD);
 
         }
         Query q = booleanQuery.build();
@@ -305,6 +333,10 @@ public class Blender
             int uid = -1;
             Document doc = searcher.doc(docID);
             Post p = new Post(doc);
+            if(tag != null && !hasTag(p.getId(), tag) )
+            {
+                continue;
+            }
             try
             {
                 uid = Integer.parseInt(doc.get("SOwnerUserId"));
