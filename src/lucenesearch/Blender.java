@@ -247,7 +247,7 @@ public class Blender
             String tag = pair.getKey().toString();
             ArrayList<ProbTranslate> trans = (ArrayList<ProbTranslate>) pair.getValue();
 
-            totalUserScores = getTransaltionScoreOr(10000, trans, taged?tag:null, selfTranslate, answerOnly);
+            totalUserScores = getTransaltionScoreOr(10000, trans, tag, taged, selfTranslate, answerOnly);
             
             ValueComparator3 bvc = new ValueComparator3(totalUserScores);
             TreeMap<Integer, Double> sorted_map = new TreeMap<Integer, Double>(bvc);
@@ -270,22 +270,8 @@ public class Blender
             it.remove(); // avoids a ConcurrentModificationException
         }
     }
-
-    public HashMap<Integer, Double> getTransaltionScoreOr(Integer N,ArrayList<ProbTranslate> trans) throws IOException, ParseException
-    {
-        return getTransaltionScoreOr(N, trans, null);
-    }
-
-    public HashMap<Integer, Double> getTransaltionScoreOr(Integer N,ArrayList<ProbTranslate> trans,String tag) throws IOException, ParseException
-    {
-        return getTransaltionScoreOr(N, trans, tag, false);
-    }
-    public HashMap<Integer, Double> getTransaltionScoreOr(Integer N,ArrayList<ProbTranslate> trans,String tag,boolean selfTranslate) throws IOException, ParseException
-    {
-        return getTransaltionScoreOr(N, trans, tag, selfTranslate, true);
-    }
     
-    public HashMap<Integer, Double> getTransaltionScoreOr(Integer N,ArrayList<ProbTranslate> trans,String tag,boolean selfTranslate, boolean answerOnly) throws IOException, ParseException
+    public HashMap<Integer, Double> getTransaltionScoreOr(Integer N,ArrayList<ProbTranslate> trans,String tag,boolean isTaged,boolean selfTranslate, boolean answerOnly) throws IOException, ParseException
     {
         HashMap<Integer, Double> userScores = new HashMap<>();
         if (N == null)
@@ -333,7 +319,7 @@ public class Blender
             int uid = -1;
             Document doc = searcher.doc(docID);
             Post p = new Post(doc);
-            if(tag != null && !hasTag(p.getId(), tag) )
+            if(isTaged && !hasTag(p.getId(), tag) )
             {
                 continue;
             }

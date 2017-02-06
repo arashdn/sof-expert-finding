@@ -15,6 +15,7 @@ import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Stream;
@@ -258,7 +259,12 @@ public class Indexer
     
     public void indexJavaPosts(String path) throws FileNotFoundException, IOException, SAXException, ParseException
     {
-        
+        indexJavaPosts(path, null);
+    }
+    public void indexJavaPosts(String path, Double p) throws FileNotFoundException, IOException, SAXException, ParseException
+    {
+        int numberOfskip = 0;
+        Random rand = new Random();
         FileInputStream fstream = new FileInputStream("data/Q_A.txt");
         BufferedReader br = new BufferedReader(new InputStreamReader(fstream));
         
@@ -339,8 +345,17 @@ public class Indexer
                 NamedNodeMap nnm = n.getAttributes();
                 if (nnm.getNamedItem("Id") != null && set.contains(Integer.parseInt(nnm.getNamedItem("Id").getFirstChild().getTextContent())))
                 {
-                    Post p = new Post(nnm);
-                    indexPost(writer, p);
+                    if(p != null)
+                    {
+                        if(rand.nextDouble() > p)//p is indexing prob here rans is jump prob so < will be >
+                        {
+                            numberOfskip++;
+                            System.err.println("num skip: "+numberOfskip);
+                            continue;
+                        }
+                    }
+                    Post post = new Post(nnm);
+                    indexPost(writer, post);
                     System.out.println("row " + i+" indexed "+(++indexed));
                 }
                 i++;
