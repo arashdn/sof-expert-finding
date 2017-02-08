@@ -140,11 +140,19 @@ public class DeepTranslationFixer
     private HashMap<String, Double> normalizedTermFreq = null;
     private HashMap<String, Double> normalizedTFIDF = null;
     private String index = new Searcher().getPostIndexPath();
+    private String resultPath;
+
+    public DeepTranslationFixer(String resultPath)
+    {
+        this.resultPath = resultPath;
+    }
+    
+    
     
 
     private void readFile() throws FileNotFoundException, IOException
     {
-        BufferedReader br = new BufferedReader(new FileReader("./data/deep_result.txt"));
+        BufferedReader br = new BufferedReader(new FileReader(this.resultPath));
         String line = br.readLine();
         String[] tags = line.split("\t");
 

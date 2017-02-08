@@ -592,7 +592,8 @@ public class MainForm extends javax.swing.JFrame
 
     private void jButton17ActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButton17ActionPerformed
     {//GEN-HEADEREND:event_jButton17ActionPerformed
-        DeepTranslationFixer dtf = new DeepTranslationFixer();
+        //DeepTranslationFixer dtf = new DeepTranslationFixer("./data/deep_result.txt");
+        DeepTranslationFixer dtf = new DeepTranslationFixer("./data/deep_result_bias.txt");
         try
         {
             dtf.saveResult();
@@ -608,8 +609,8 @@ public class MainForm extends javax.swing.JFrame
         try
         {
             //args: number of words in trans, limit to tagged only, self translation, search answer only
-            new Blender("data/tag_mutuals.txt").blendOr(10,true,true,true);
-//            new Blender("data/final_deep_trans_method_2.txt").blendOr(10,false,true,true);
+//            new Blender("data/tag_mutuals.txt").blendOr(10,true,true,true);
+            new Blender("data/final_deep_trans_method_2.txt").blendOr(10,true,true,true);
         }
         catch (IOException ex)
         {
