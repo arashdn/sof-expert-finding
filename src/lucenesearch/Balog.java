@@ -245,14 +245,15 @@ public class Balog
     
     public ArrayList<EvalResult> balog1ForAllTags() throws IOException, ParseException
     {
+        System.out.println("tag:map,p@1,p@5,p@10");
         ArrayList<String> tags = Utility.getTags();
         ArrayList<EvalResult> res = new ArrayList<>();
         double map;
         for (String tag : tags)
         {
             System.out.print(tag+": ");
-            EvalResult er = balog1(tag,false);
-            System.out.println(er.getMap());
+            EvalResult er = balog1(tag,false,null,10000,null,0.5);
+            System.out.println(er.getMap()+","+er.getP1()+","+er.getP5()+","+er.getP10());
             res.add(er);
         }
         
@@ -482,6 +483,7 @@ public class Balog
     
     public ArrayList<EvalResult> balog2ForAllTags() throws IOException, ParseException
     {
+        System.out.println("tag:map,p@1,p@5,p@10");
         ArrayList<String> tags = Utility.getTags();
         ArrayList<EvalResult> res = new ArrayList<>();
         double map;
@@ -489,7 +491,7 @@ public class Balog
         {
             System.out.print(tag+":");
             EvalResult er = balog2(tag,false,null,10000,null,0.5);
-            System.out.println(er.getMap());
+            System.out.println(er.getMap()+","+er.getP1()+","+er.getP5()+","+er.getP10());
             res.add(er);
         }
         

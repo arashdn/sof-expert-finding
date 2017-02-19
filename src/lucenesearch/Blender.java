@@ -240,6 +240,7 @@ public class Blender
         Iterator it = tags.entrySet().iterator();
         HashMap<Integer, Double > userScores = null;
         HashMap<Integer, Double > totalUserScores = new HashMap<>();
+        System.out.println("tag,map,p@1,p@5,p@10");
         while (it.hasNext()) 
         {
             totalUserScores = new HashMap<>();
@@ -261,11 +262,11 @@ public class Blender
             Evaluator ev = new Evaluator();
             Balog balog = new Balog();
             double map = ev.map(lst, balog.getGoldenList( Utility.getGoldenFileName(tag)));
-            System.out.println(tag+","+map);
-//        double p1 = ev.precisionAtK(lst, getGoldenList(goldenFile),1);
-//        double p5 = ev.precisionAtK(lst, getGoldenList(goldenFile),5);
-//        double p10 = ev.precisionAtK(lst, getGoldenList(goldenFile),10);
-        
+            System.out.print(tag+","+map);
+            double p1 = ev.precisionAtK(lst, balog.getGoldenList( Utility.getGoldenFileName(tag)),1);
+            double p5 = ev.precisionAtK(lst, balog.getGoldenList( Utility.getGoldenFileName(tag)),5);
+            double p10 = ev.precisionAtK(lst, balog.getGoldenList( Utility.getGoldenFileName(tag)),10);
+            System.out.println(","+p1+","+p5+","+p10);
             
             it.remove(); // avoids a ConcurrentModificationException
         }

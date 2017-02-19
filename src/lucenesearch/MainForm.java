@@ -382,8 +382,8 @@ public class MainForm extends javax.swing.JFrame
     {//GEN-HEADEREND:event_jButton4ActionPerformed
         try
         {
-            new Balog().balog1("android",true,null);
-            //new Balog().balog1ForAllTags();
+//            new Balog().balog1("android",true,null);
+            new Balog().balog1ForAllTags();
         }
         catch (IOException ex)
         {
@@ -441,8 +441,8 @@ public class MainForm extends javax.swing.JFrame
     {//GEN-HEADEREND:event_jButton7ActionPerformed
         try
         {
-            new Balog().balog2("windows",true,null,10000,null,0.5);
-            //new Balog().balog2ForAllTags();
+//            new Balog().balog2("windows",true,null,10000,null,0.5);
+            new Balog().balog2ForAllTags();
         }
         catch (IOException ex)
         {
