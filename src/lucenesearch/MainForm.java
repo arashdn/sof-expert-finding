@@ -153,7 +153,7 @@ public class MainForm extends javax.swing.JFrame
             }
         });
 
-        jButton11.setText("Balog Karimzadegan");
+        jButton11.setText("Balog Karimzadegan(Not Used)");
         jButton11.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -189,7 +189,7 @@ public class MainForm extends javax.swing.JFrame
             }
         });
 
-        jButton15.setText("KarimZadegan_code");
+        jButton15.setText("KarimZadegan_code(Not Used)");
         jButton15.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -198,7 +198,7 @@ public class MainForm extends javax.swing.JFrame
             }
         });
 
-        jButton16.setText("Balog KarimZadegan_code");
+        jButton16.setText("Balog KarimZadegan_code(Not Used)");
         jButton16.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)

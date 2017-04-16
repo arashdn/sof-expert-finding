@@ -3,7 +3,7 @@
 This repository contains source codes developed in this paper:
 
 	Arash Dargahi Nobari, Sajad Sotudeh Gharebagh and Mahmood Neshati. “Skill Translation Models in Expert Finding”,
-	In proceedings of The 40th International ACM SIGIR Conference on Research and Development in Information Retrieval (SIGIR ’17), Aug 2016.
+	In proceedings of The 40th International ACM SIGIR Conference on Research and Development in Information Retrieval (SIGIR ’17), Aug 2017.
 
 You may check the [paper](http://arashdargahi.com/to_be_added) for more information.
 
@@ -13,7 +13,6 @@ You may check the [paper](http://arashdargahi.com/to_be_added) for more informat
 JDK8 and Apache Lucene 6.2.1 is required for running the code.
 
 To run machine learning algorithms there is another [repository](https://github.com/arashdn/sof-expert-finding-ml) in python with Tensorflow
-
 
 ## Data
 
@@ -31,6 +30,12 @@ The `data` folder includes the following files and folders:
 - `Q_A.txt`: each question and it's answer ids.
 - `Posts.xml`: This file is removed from data(due to it's very large size), This is the main dataset obtained from [archive.org](https://archive.org/details/stackexchange) including posts from 2008-07-31 until 2015-03-08 at the time we download it. the version used in our paper can be downloaded [here](http://files.arashdargahi.com/sof_posts_2015/)
 
+
+## Usage
+Codes include a simple GUI to be used more easily.
+
+Add `data` folder to the project and put Posts.xml inside it.
+Then Index posts using the button. All other functions have their own button.
 
 ## Citation
 
