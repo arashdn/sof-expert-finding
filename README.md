@@ -1,4 +1,4 @@
-# Transaltion Models on Expert Finding
+# Translation Models on Expert Finding
 
 This repository contains source codes developed in this paper:
 
@@ -12,6 +12,7 @@ You may check the [paper](http://arashdargahi.com/to_be_added) for more informat
 
 JDK8 and Apache Lucene 6.2.1 is required for running the code.
 
+To run machine learning algorithms there is another [repository](https://github.com/arashdn/sof-expert-finding-ml) in python with Tensorflow
 
 
 ## Data
@@ -28,7 +29,7 @@ The `data` folder includes the following files and folders:
 - `java_a_tag.txt`: Tags for each answer (Answers don't have tag by their self, taged are extracted from related questions)
 - `java_q_tag.txt`: Tags for each question.
 - `Q_A.txt`: each question and it's answer ids.
-- `Posts.xml`: This file is removed from data(due to it's very large size), This is the main dataset obtained from [archive.org](https://archive.org/details/stackexchange) including posts from 2008-07-31 until 2015-03-08 at the time we download it.
+- `Posts.xml`: This file is removed from data(due to it's very large size), This is the main dataset obtained from [archive.org](https://archive.org/details/stackexchange) including posts from 2008-07-31 until 2015-03-08 at the time we download it. the version used in our paper can be downloaded [here](http://files.arashdargahi.com/sof_posts_2015/)
 
 
 ## Citation
