@@ -72,7 +72,7 @@ public class Searcher
 
     public Searcher()
     {
-        this.setPostIndexPath("./data/index_java");
+        this.setPostIndexPath("./data/index");
     }
 
     public Searcher(String postIndexPath)

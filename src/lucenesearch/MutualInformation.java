@@ -336,7 +336,7 @@ public class MutualInformation
                 String term = (String) pair.getKey();
                 
                 //this term causes lucene parser to crash!!!!!!
-                if(term.equalsIgnoreCase("hh:mm:ss")||term.equalsIgnoreCase("jdbc:oracle:thin")||term.equalsIgnoreCase("hh:mm:ss.sss"))
+                if(term.equalsIgnoreCase("hh:mm:ss")||term.equalsIgnoreCase("jdbc:oracle:thin")||term.equalsIgnoreCase("hh:mm:ss.sss")||term.equalsIgnoreCase("h:i:s"))
                     continue;
                 
                 long value = (long)pair.getValue();
@@ -551,13 +551,13 @@ public class MutualInformation
         
     }
     
-    public void saveAllTransaltionsByTag(int topWordsCount) throws IOException, FileNotFoundException, ParseException
+    public void saveAllTransaltionsByTag(int topWordsCount,String topTag) throws IOException, FileNotFoundException, ParseException
     {
-        saveAllTransaltionsByTag(topWordsCount,false);
+        saveAllTransaltionsByTag(topWordsCount,topTag,false);
     }
-    public void saveAllTransaltionsByTag(int topWordsCount , boolean isCode) throws FileNotFoundException, IOException, ParseException
+    public void saveAllTransaltionsByTag(int topWordsCount,String topTag , boolean isCode) throws FileNotFoundException, IOException, ParseException
     {
-        ArrayList<String> tags = Utility.getTags();
+        ArrayList<String> tags = Utility.getTags(topTag);
         ArrayList<String> res = new ArrayList<>();
        
         
@@ -584,14 +584,14 @@ public class MutualInformation
         out.close();
     }
     
-    public void saveAllTransaltionsByTagAndProb(int topWordsCount) throws FileNotFoundException, IOException, ParseException
+    public void saveAllTransaltionsByTagAndProb(int topWordsCount , String topTag) throws FileNotFoundException, IOException, ParseException
     {
-        saveAllTransaltionsByTagAndProb(topWordsCount,false);
+        saveAllTransaltionsByTagAndProb(topWordsCount,topTag,false);
     }
     
-    public void saveAllTransaltionsByTagAndProb(int topWordsCount, boolean isCode) throws FileNotFoundException, IOException, ParseException
+    public void saveAllTransaltionsByTagAndProb(int topWordsCount,String topTag, boolean isCode) throws FileNotFoundException, IOException, ParseException
     {
-        ArrayList<String> tags = Utility.getTags();
+        ArrayList<String> tags = Utility.getTags(topTag);
         ArrayList<ProbTranslate> res = new ArrayList<>();
        
         

@@ -71,6 +71,7 @@ public class Mallet
             sb.append("\t");
             for (String re : res)
             {
+                re = re.replaceAll("\r\n", " ").replaceAll("\n"," ").replaceAll("<.+?>", "").replaceAll(" +"," ").replaceAll("[^\\x00-\\x7F]", " ").trim();
                 sb.append(re).append(" ");
             }
             sb.append("\n");

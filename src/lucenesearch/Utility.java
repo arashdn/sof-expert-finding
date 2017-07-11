@@ -2,6 +2,7 @@ package lucenesearch;
 
 import java.util.ArrayList;
 import java.util.concurrent.Callable;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 /**
  *
@@ -10,9 +11,12 @@ import java.util.concurrent.Callable;
 public class Utility
 {
 
-    public static ArrayList<String> getTags()
+    public static ArrayList<String> getTags(String tag)
     {
         ArrayList<String> res = new ArrayList<>();
+
+        if(tag.equalsIgnoreCase("java") )
+        {
         res.add("algorithm");
         res.add("android");
         res.add("annotations");
@@ -113,6 +117,112 @@ public class Utility
         res.add("web-services");
         res.add("windows");
         res.add("xml");
+        }
+        else if(tag.equalsIgnoreCase("php"))
+        {
+            res.add("php");
+            res.add("mysql");
+            res.add("javascript");
+            res.add("html");
+            res.add("jquery");
+            res.add("arrays");
+            res.add("ajax");
+            res.add("wordpress");
+            res.add("sql");
+            res.add("codeigniter");
+            res.add("regex");
+            res.add("forms");
+            res.add("json");
+            res.add("apache");
+            res.add("database");
+            res.add(".htaccess");
+            res.add("symfony2");
+            res.add("laravel");
+            res.add("xml");
+            res.add("zend-framework");
+            res.add("curl");
+            res.add("session");
+            res.add("pdo");
+            res.add("css");
+            res.add("mysqli");
+            res.add("facebook");
+            res.add("cakephp");
+            res.add("email");
+            res.add("magento");
+            res.add("yii");
+            res.add("laravel-4");
+            res.add("oop");
+            res.add("string");
+            res.add("post");
+            res.add("image");
+            res.add("function");
+            res.add("variables");
+            res.add("api");
+            res.add("date");
+            res.add("mod-rewrite");
+            res.add("android");
+            res.add("security");
+            res.add("foreach");
+            res.add("multidimensional-array");
+            res.add("redirect");
+            res.add("url");
+            res.add("class");
+            res.add("validation");
+            res.add("java");
+            res.add("doctrine2");
+            res.add("linux");
+            res.add("file-upload");
+            res.add("joomla");
+            res.add("cookies");
+            res.add("loops");
+            res.add("facebook-graph-api");
+            res.add("file");
+            res.add("drupal");
+            res.add("soap");
+            res.add("datetime");
+            res.add("login");
+            res.add("preg-replace");
+            res.add("parsing");
+            res.add("csv");
+            res.add("if-statement");
+            res.add("zend-framework2");
+            res.add("html5");
+            res.add("upload");
+            res.add("paypal");
+            res.add("preg-match");
+            res.add("sorting");
+            res.add("phpmyadmin");
+            res.add("search");
+            res.add("get");
+            res.add("sql-server");
+            res.add("doctrine");
+            res.add("performance");
+            res.add("web-services");
+            res.add("table");
+            res.add("pdf");
+            res.add("utf-8");
+            res.add("simplexml");
+            res.add("object");
+            res.add("phpunit");
+            res.add("mongodb");
+            res.add("dom");
+            res.add("select");
+            res.add("http");
+            res.add("include");
+            res.add("authentication");
+            res.add("caching");
+            res.add("cron");
+            res.add("pagination");
+            res.add("xampp");
+            res.add("twitter");
+            res.add("python");
+            res.add("rest");
+            res.add("encryption");
+            res.add("wordpress-plugin");
+            res.add("gd");
+        }
+        else
+            throw new NotImplementedException();
         
         
         return res;

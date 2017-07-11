@@ -243,10 +243,10 @@ public class Balog
                         
     }
     
-    public ArrayList<EvalResult> balog1ForAllTags() throws IOException, ParseException
+    public ArrayList<EvalResult> balog1ForAllTags(String topTag) throws IOException, ParseException
     {
         System.out.println("tag:map,p@1,p@5,p@10");
-        ArrayList<String> tags = Utility.getTags();
+        ArrayList<String> tags = Utility.getTags(topTag);
         ArrayList<EvalResult> res = new ArrayList<>();
         double map;
         for (String tag : tags)
@@ -481,10 +481,10 @@ public class Balog
         return userScores;
     }
     
-    public ArrayList<EvalResult> balog2ForAllTags() throws IOException, ParseException
+    public ArrayList<EvalResult> balog2ForAllTags(String topTag) throws IOException, ParseException
     {
         System.out.println("tag:map,p@1,p@5,p@10");
-        ArrayList<String> tags = Utility.getTags();
+        ArrayList<String> tags = Utility.getTags(topTag);
         ArrayList<EvalResult> res = new ArrayList<>();
         double map;
         for (String tag : tags)
@@ -506,9 +506,9 @@ public class Balog
         return res;
     }
     
-    public void balog2ForAllTagsCsv() throws IOException, ParseException
+    public void balog2ForAllTagsCsv(String topTag) throws IOException, ParseException
     {
-        ArrayList<String> tags = Utility.getTags();
+        ArrayList<String> tags = Utility.getTags(topTag);
         ArrayList<EvalResult> res = new ArrayList<>();
         
         Integer N = 10000;
@@ -548,9 +548,9 @@ public class Balog
         System.out.println("Avg P10: "+(sumP10/res.size()));
     }
     
-    public void balog1ForAllTagsCsv() throws IOException, ParseException
+    public void balog1ForAllTagsCsv(String topTag) throws IOException, ParseException
     {
-        ArrayList<String> tags = Utility.getTags();
+        ArrayList<String> tags = Utility.getTags(topTag);
         ArrayList<EvalResult> res = new ArrayList<>();
         
         Integer N = 10000;
