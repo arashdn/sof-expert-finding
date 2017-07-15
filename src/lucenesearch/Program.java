@@ -94,7 +94,7 @@ public class Program
                 {
                     int n = Integer.parseInt(args[1]);
                     int hit = Integer.parseInt(args[2]);
-                    new NGram().getNGram(n,hit);
+                    new NGram("php").getNGram(n,hit);
                 }
                 catch (IOException ex) {
                     Logger.getLogger(Program.class.getName()).log(Level.SEVERE, null, ex);

@@ -41,15 +41,17 @@ public class NGram
 {
 
     private HashMap<Integer,ArrayList<String>> tags;
-    public NGram() throws FileNotFoundException, IOException
+    private String mainTag;
+    public NGram(String mainTag) throws FileNotFoundException, IOException
     {
-        init();
+        init(mainTag);
     }
     
-    private void init() throws FileNotFoundException, IOException
+    private void init(String mainTag) throws FileNotFoundException, IOException
     {
+        this.mainTag = mainTag;
         tags = new HashMap<>();
-        BufferedReader br = new BufferedReader(new FileReader("./data/java_a_tag.txt"));
+        BufferedReader br = new BufferedReader(new FileReader("./data/"+mainTag+"_a_tag.txt"));
         String line = "";
         while((line = br.readLine()) != null)
         {
@@ -241,7 +243,7 @@ public class NGram
         StringBuilder sb = new StringBuilder();
         for (String tag : tags)
         {
-            if(!tag.equalsIgnoreCase("java"))
+            if(!tag.equalsIgnoreCase(mainTag))
                 sb.append(tag).append("\t");
         }
         String res = sb.toString();
