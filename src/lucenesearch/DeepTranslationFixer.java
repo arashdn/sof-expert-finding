@@ -153,7 +153,7 @@ public class DeepTranslationFixer
     private void readFile() throws FileNotFoundException, IOException
     {
         BufferedReader br = new BufferedReader(new FileReader(this.resultPath));
-        String line = br.readLine();
+        String line = br.readLine().trim();
         String[] tags = line.split("\t");
 
         tagWord = new Tag[tags.length - 1];
@@ -177,12 +177,14 @@ public class DeepTranslationFixer
 
         br.close();
 
+        //only test
         double sum = 0;
         for (Tag tg : tagWord)
         {
-            sum += tg.getWordProb("filewriter");
+            sum += tg.getWordProb("file");
         }
         assert Math.abs(sum - 1) < 0.001;
+        //////////
 
         System.out.println("File Reading Done!");
     }
@@ -275,7 +277,7 @@ public class DeepTranslationFixer
         double res =  normalizedTermFreq.get(word);
         if(res > 0)
             return res;
-        throw new ArithmeticException("Zero TF");
+        throw new ArithmeticException("Zero TF for "+word);
     }
     
     private Double getTFIDFProb(String word) throws IOException

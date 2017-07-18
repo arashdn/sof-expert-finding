@@ -38,8 +38,9 @@ public class Evaluator
     public double precisionAtK(ArrayList<Integer> a , ArrayList<Integer> golden , int k)
     {
         int countRel = 0;
+        int a_size = a.size();
 
-        for (int i = 0; i < k; i++) 
+        for (int i = 0; i < Math.min(a_size, k); i++) 
         {
             if (expertExist(golden, a.get(i))) 
             {

@@ -36,10 +36,16 @@ public class Blender
 {
     private HashMap<Integer,ArrayList<String>> tags;
     private String filePath;
+    private String mainTag;
+    HashMap<Integer,String[]> clusters;
+    HashMap<String,Integer> tagCluster;
+    
+    HashMap<String,ArrayList<ProbTranslate>> allTranslations = null;
 
-    public Blender(String path) throws IOException
+    public Blender(String path,String mainTag) throws IOException
     {
         filePath = path;
+        this.mainTag = mainTag;
         getTags();
     }
     
@@ -52,7 +58,7 @@ public class Blender
     {
         System.out.println("Loading tags started");
         tags = new HashMap<>();
-        BufferedReader br = new BufferedReader(new FileReader("./data/java_all_tag.txt"));
+        BufferedReader br = new BufferedReader(new FileReader("./data/"+mainTag+"_all_tag.txt"));
         String line = "";
         while((line = br.readLine()) != null)
         {
@@ -209,17 +215,19 @@ public class Blender
         return userScores;
     }
 
-
-    public void blendOr(int countWords, boolean taged, boolean selfTranslate, boolean answerOnly) throws IOException, ParseException
+    
+    public void blendOr(int countWords, boolean taged, boolean selfTranslate, boolean answerOnly,boolean useCluster) throws IOException, ParseException
     {
         java.nio.file.Path filePath = new java.io.File(this.filePath).toPath();
         List<String> stringList = Files.readAllLines(filePath);
         
         HashMap<String,ArrayList<ProbTranslate>> tags = new HashMap<>();
+        HashMap<String,ArrayList<ProbTranslate>> tags2 = new HashMap<>();
         for (String s : stringList)
         {
             String[] tgs = s.split("~");
             ArrayList<ProbTranslate> e = new ArrayList<>();
+            ArrayList<ProbTranslate> e2 = new ArrayList<>();
             if(tgs.length > 1 && tgs[1] != null && tgs[1] != "")
             {
                 String [] trs = tgs[1].split(",");
@@ -228,19 +236,25 @@ public class Blender
                 {
                     String [] t = trs[i].split(":");
                     e.add(new ProbTranslate(t[0], 1));
+                    e2.add(new ProbTranslate(t[0], 1));
 //                    e.add(new ProbTranslate(t[0], Double.parseDouble(t[1])));
                 }
             }
             else
             {
                 e.add(new ProbTranslate(tgs[0], 1));
+                e2.add(new ProbTranslate(tgs[0], 1));
             }
             tags.put(tgs[0], e );
+            tags2.put(tgs[0], e2 );
         }
+        this.allTranslations = tags2;
         Iterator it = tags.entrySet().iterator();
         HashMap<Integer, Double > userScores = null;
         HashMap<Integer, Double > totalUserScores = new HashMap<>();
         System.out.println("tag,map,p@1,p@5,p@10");
+        double sum = 0.0;
+        int cnt = 0;
         while (it.hasNext()) 
         {
             totalUserScores = new HashMap<>();
@@ -248,7 +262,7 @@ public class Blender
             String tag = pair.getKey().toString();
             ArrayList<ProbTranslate> trans = (ArrayList<ProbTranslate>) pair.getValue();
 
-            totalUserScores = getTransaltionScoreOr(10000, trans, tag, taged, selfTranslate, answerOnly);
+            totalUserScores = getTransaltionScoreOr(20000, trans, tag, taged, selfTranslate, answerOnly,useCluster);
             
             ValueComparator3 bvc = new ValueComparator3(totalUserScores);
             TreeMap<Integer, Double> sorted_map = new TreeMap<Integer, Double>(bvc);
@@ -261,6 +275,7 @@ public class Blender
             }
             Evaluator ev = new Evaluator();
             Balog balog = new Balog();
+
             double map = ev.map(lst, balog.getGoldenList( Utility.getGoldenFileName(tag)));
             System.out.print(tag+","+map);
             double p1 = ev.precisionAtK(lst, balog.getGoldenList( Utility.getGoldenFileName(tag)),1);
@@ -268,12 +283,45 @@ public class Blender
             double p10 = ev.precisionAtK(lst, balog.getGoldenList( Utility.getGoldenFileName(tag)),10);
             System.out.println(","+p1+","+p5+","+p10);
             
+            if(!Double.isNaN(map))
+            {
+                sum += map;
+                cnt++;
+            }
+            
             it.remove(); // avoids a ConcurrentModificationException
         }
+        System.out.println("Avg Map = "+(sum/cnt));
     }
     
-    public HashMap<Integer, Double> getTransaltionScoreOr(Integer N,ArrayList<ProbTranslate> trans,String tag,boolean isTaged,boolean selfTranslate, boolean answerOnly) throws IOException, ParseException
+    private void setupClusters() throws IOException
     {
+        int i = 0;
+        HashMap<Integer,String[]> clusters = new HashMap<>();
+        this.tagCluster = new HashMap<>();
+        String clusterFilePath = "./data/clusters/cluster_"+mainTag+"_final.csv";
+        BufferedReader reader = new BufferedReader(new FileReader(clusterFilePath));
+        String line = "";
+        while ((line = reader.readLine()) != null)
+        {
+            String[] parts = line.split(",");
+            clusters.put(i, parts);
+            for (String part : parts)
+            {
+                tagCluster.put(part, i);
+            }
+            i++;
+        }
+        reader.close();
+        this.clusters = clusters;
+        
+    }
+    
+    public HashMap<Integer, Double> getTransaltionScoreOr(Integer N,ArrayList<ProbTranslate> trans,String tag,boolean isTaged,boolean selfTranslate, boolean answerOnly,boolean useCluster) throws IOException, ParseException
+    {
+        if(useCluster)
+            setupClusters();
+        
         HashMap<Integer, Double> userScores = new HashMap<>();
         if (N == null)
         {
@@ -300,6 +348,24 @@ public class Blender
         {
             booleanQuery.add(new QueryParser("Body", analyzer).parse(tran.getWord()), BooleanClause.Occur.SHOULD);
 
+        }
+        if(useCluster)
+        {
+            int cluster = tagCluster.get(tag);
+            String[] ctags = this.clusters.get(cluster);
+            for (String ctag : ctags)
+            {
+                if (ctag.equalsIgnoreCase(tag) )
+                    continue;
+                ArrayList<ProbTranslate> ctrans = this.allTranslations.get(ctag);
+                booleanQuery.add(new QueryParser("Body", analyzer).parse(ctrans.get(0).getWord()), BooleanClause.Occur.SHOULD);
+                if(ctrans.size() > 1)
+                {
+                    booleanQuery.add(new QueryParser("Body", analyzer).parse(ctrans.get(1).getWord()), BooleanClause.Occur.SHOULD);
+                    booleanQuery.add(new QueryParser("Body", analyzer).parse(ctrans.get(2).getWord()), BooleanClause.Occur.SHOULD);
+
+                }
+            }
         }
         if(selfTranslate)
         {
@@ -333,14 +399,15 @@ public class Blender
                 errorUsers++;
                 continue;
             }
+            double score = 1.0;
             if (userScores.containsKey(uid))
             {
                 double oldScore = userScores.get(uid);
-                userScores.replace(uid, 1 + oldScore);
+                userScores.replace(uid, score + oldScore);
             }
             else
             {
-                userScores.put(uid, 1.0);
+                userScores.put(uid, score);
             }
         }
         return userScores;
