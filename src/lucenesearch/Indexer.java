@@ -265,7 +265,7 @@ public class Indexer
     {
         int numberOfskip = 0;
         Random rand = new Random();
-        FileInputStream fstream = new FileInputStream("data/Q_A.txt");
+        FileInputStream fstream = new FileInputStream("data/java_Q_A.txt");
         BufferedReader br = new BufferedReader(new InputStreamReader(fstream));
         
         String line;

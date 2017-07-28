@@ -7,6 +7,7 @@ package lucenesearch;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -66,6 +67,10 @@ public class MainForm extends javax.swing.JFrame
         jButton23 = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         jButton24 = new javax.swing.JButton();
+        jButton25 = new javax.swing.JButton();
+        jButton26 = new javax.swing.JButton();
+        jButton27 = new javax.swing.JButton();
+        jButton28 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -278,12 +283,48 @@ public class MainForm extends javax.swing.JFrame
 
         jLabel1.setText("jLabel1");
 
-        jButton24.setText("Topic Modelling");
+        jButton24.setText("Topic Modelling (By Sajad)");
         jButton24.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
             {
                 jButton24ActionPerformed(evt);
+            }
+        });
+
+        jButton25.setText("Tag and Body Count");
+        jButton25.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jButton25ActionPerformed(evt);
+            }
+        });
+
+        jButton26.setText("Translation count on acc answer");
+        jButton26.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jButton26ActionPerformed(evt);
+            }
+        });
+
+        jButton27.setText("Translation P and R");
+        jButton27.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jButton27ActionPerformed(evt);
+            }
+        });
+
+        jButton28.setText("Data for venn");
+        jButton28.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jButton28ActionPerformed(evt);
             }
         });
 
@@ -299,7 +340,7 @@ public class MainForm extends javax.swing.JFrame
                 .addComponent(jButton19, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButton21)
-                .addGap(0, 0, Short.MAX_VALUE))
+                .addGap(0, 48, Short.MAX_VALUE))
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jButton11, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -327,11 +368,21 @@ public class MainForm extends javax.swing.JFrame
                                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                             .addComponent(jButton14, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                             .addComponent(jButton12, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                    .addComponent(jButton23, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                                .addGap(97, 97, 97)
-                                .addComponent(jButton24, javax.swing.GroupLayout.PREFERRED_SIZE, 327, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(0, 0, Short.MAX_VALUE))))
+                                    .addComponent(jButton23, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                        .addGap(6, 6, 6)
+                                        .addComponent(jButton24, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jButton25)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addGroup(layout.createSequentialGroup()
+                                                .addComponent(jButton28)
+                                                .addGap(0, 0, Short.MAX_VALUE))
+                                            .addGroup(layout.createSequentialGroup()
+                                                .addComponent(jButton26)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(jButton27, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))))))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
@@ -410,13 +461,16 @@ public class MainForm extends javax.swing.JFrame
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButton18)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jLabel1))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jButton24)
-                        .addGap(0, 14, Short.MAX_VALUE)))
+                .addComponent(jButton24)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton25)
+                    .addComponent(jButton26)
+                    .addComponent(jButton27))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButton28)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel1)
                 .addContainerGap())
         );
 
@@ -704,6 +758,8 @@ public class MainForm extends javax.swing.JFrame
             new Blender("data/tag_mutuals.txt","java").blendOr(10,true,true,true,true);// cluster
 //            new Blender("data/final_deep_trans_method_2.txt","php").blendOr(10,true,true,true,true);// cluster
 //            new Blender("data/cluster_translations.txt","java").blendOr(10,true,true,true,false);
+//            new Blender("data/mahdi.text","java").blendOr(10,false,true,true,false);// cluster
+
 
         }
         catch (IOException ex)
@@ -813,6 +869,98 @@ public class MainForm extends javax.swing.JFrame
         }
     }//GEN-LAST:event_jButton24ActionPerformed
 
+    private void jButton25ActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButton25ActionPerformed
+    {//GEN-HEADEREND:event_jButton25ActionPerformed
+        try
+        {
+            String[] words = new String[]{"ioexception","file","read"};
+            String line = "file,read,ioexception,filewriter,bufferedreader,write,fileinputstream,filereader,reading";
+            new TagBodyCount("java", "io").calculateWord(line.split(","));
+        }
+        catch (SQLException ex)
+        {
+            Logger.getLogger(MainForm.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        catch (IOException ex)
+        {
+            Logger.getLogger(MainForm.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        catch (org.apache.lucene.queryparser.classic.ParseException ex)
+        {
+            Logger.getLogger(MainForm.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_jButton25ActionPerformed
+
+    private void jButton26ActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButton26ActionPerformed
+    {//GEN-HEADEREND:event_jButton26ActionPerformed
+        try
+        {
+            String[] words = new String[]{"ioexception","file","read"};
+//            String line = "file,read,ioexception,filewriter,bufferedreader,write,fileinputstream,filereader,reading";
+            String line = "file,read,ioexception,filewriter,bufferedreader,write,io,fileinputstream,filereader,reading";
+            new TagBodyCount("java", "io").calculateCount(line.split(","));
+        }
+        catch (SQLException ex)
+        {
+            Logger.getLogger(MainForm.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        catch (IOException ex)
+        {
+            Logger.getLogger(MainForm.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        catch (org.apache.lucene.queryparser.classic.ParseException ex)
+        {
+            Logger.getLogger(MainForm.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_jButton26ActionPerformed
+
+    private void jButton27ActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButton27ActionPerformed
+    {//GEN-HEADEREND:event_jButton27ActionPerformed
+        try
+        {
+            String[] words = new String[]{"ioexception","file","read"};
+//            String line = "file,read,ioexception,filewriter,bufferedreader,write,fileinputstream,filereader,reading";
+            String line = "file,read,ioexception,filewriter,bufferedreader,write,io,fileinputstream,filereader,reading";
+            new TagBodyCount("java", "io").calculatePR(line.split(","));
+        }
+        catch (SQLException ex)
+        {
+            Logger.getLogger(MainForm.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        catch (IOException ex)
+        {
+            Logger.getLogger(MainForm.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        catch (org.apache.lucene.queryparser.classic.ParseException ex)
+        {
+            Logger.getLogger(MainForm.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_jButton27ActionPerformed
+
+    private void jButton28ActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButton28ActionPerformed
+    {//GEN-HEADEREND:event_jButton28ActionPerformed
+        try
+        {
+            String[] words = new String[]{"ioexception","file","read"};
+//            String line = "file,read,ioexception,filewriter,bufferedreader,write,fileinputstream,filereader,reading";
+//            String line = "file,read,ioexception,filewriter,bufferedreader,write,io,fileinputstream,filereader,reading";
+            String line = "file,read,ioexception,filewriter";
+            new TagBodyCount("java", "io").calculateVenn(line.split(","));
+        }
+        catch (SQLException ex)
+        {
+            Logger.getLogger(MainForm.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        catch (IOException ex)
+        {
+            Logger.getLogger(MainForm.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        catch (org.apache.lucene.queryparser.classic.ParseException ex)
+        {
+            Logger.getLogger(MainForm.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_jButton28ActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton10;
@@ -831,6 +979,10 @@ public class MainForm extends javax.swing.JFrame
     private javax.swing.JButton jButton22;
     private javax.swing.JButton jButton23;
     private javax.swing.JButton jButton24;
+    private javax.swing.JButton jButton25;
+    private javax.swing.JButton jButton26;
+    private javax.swing.JButton jButton27;
+    private javax.swing.JButton jButton28;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
