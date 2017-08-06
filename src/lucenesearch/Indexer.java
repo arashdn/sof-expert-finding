@@ -492,4 +492,141 @@ public class Indexer
 
     }
 
+    
+    
+    
+    public void indexPostHistory(String path) throws FileNotFoundException, IOException, SAXException, ParseException
+    {
+        FileInputStream fstream = new FileInputStream(path);
+        BufferedReader br = new BufferedReader(new InputStreamReader(fstream));
+
+        //skip first two lines which contains xml definations
+        br.readLine();
+        br.readLine();
+
+        String strLine;
+
+        boolean create = true;
+        Date start = new Date();
+        Directory dir = FSDirectory.open(Paths.get("./data/history_index"));
+        Analyzer analyzer = new StandardAnalyzer();
+        IndexWriterConfig iwc = new IndexWriterConfig(analyzer);
+
+        if (create)
+        {
+            // Create a new index in the directory, removing any
+            // previously indexed documents:
+            iwc.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
+        }
+        else
+        {
+            // Add new documents to an existing index:
+            iwc.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
+        }
+
+        // Optional: for better indexing performance, if you
+        // are indexing many documents, increase the RAM
+        // buffer.  But if you do this, increase the max heap
+        // size to the JVM (eg add -Xmx512m or -Xmx1g):
+        //
+        iwc.setRAMBufferSizeMB(1024.0);
+        IndexWriter writer = new IndexWriter(dir, iwc);
+
+
+        //Read File Line By Line
+        long i = 1;
+        while ((strLine = br.readLine()) != null)
+        {
+            if(strLine.contains("</posthistory>"))
+            {
+                writer.close();
+                System.out.println("Completed on: "+i);
+            }
+            else
+            {
+                InputSource is = new InputSource(new StringReader(strLine));
+                DOMParser dp = new DOMParser();
+                dp.parse(is);
+                Document doc = dp.getDocument();
+                NodeList nl = doc.getElementsByTagName("row");
+                Node n = nl.item(0);
+                NamedNodeMap nnm = n.getAttributes();
+                PostHistory p = new PostHistory(nnm);
+                indexPostHistory(writer, p);
+                System.out.println("Indexing row " + (i++));
+//                if(i>1000000)
+//                    break;
+            }
+
+        }
+
+        //Close the input stream
+        br.close();
+        if(writer.isOpen())
+            writer.close();
+        Date end = new Date();
+        System.out.println(end.getTime() - start.getTime() + " total milliseconds");
+
+    }
+    
+    public void indexPostHistory(IndexWriter writer, PostHistory p) throws IOException
+    {
+        // make a new, empty document
+        org.apache.lucene.document.Document doc = new org.apache.lucene.document.Document();
+        
+       //https://gist.github.com/mocobeta/0d2feeb59295bfad157ed06e36fd626ahttps://gist.github.com/mocobeta/0d2feeb59295bfad157ed06e36fd626a
+//        FieldType summaryType = new FieldType();
+//        summaryType.setIndexOptions(IndexOptions.DOCS);
+//        summaryType.setStored(true);
+//        summaryType.setTokenized(true);
+//        summaryType.setStoreTermVectors(true);
+//        summaryType.setStoreTermVectorPositions(true);
+//        summaryType.setStoreTermVectorOffsets(true);
+//        summaryType.setStoreTermVectorPayloads(true);
+       
+        doc.add(new IntPoint("Id", p.getId()));
+        doc.add(new StoredField("SId",p.getId()));
+        
+        doc.add(new IntPoint("PostHistoryTypeId", p.getPostHistoryTypeId()));
+        doc.add(new StoredField("SPostHistoryTypeId",p.getPostHistoryTypeId()));
+        
+        if(p.getPostId() != 0)
+        {
+            doc.add(new IntPoint("PostId", p.getPostId()));
+            doc.add(new StoredField("SPostId",p.getPostId()));
+        }
+        
+        if(p.getUserId()!= 0)
+        {
+            doc.add(new IntPoint("UserId", p.getUserId()));
+            doc.add(new StoredField("SUserId",p.getUserId()));
+        }
+        
+        doc.add(new LongPoint("CreationDate", p.getCreationDate().getTime()));
+        doc.add(new StoredField("SCreationDate",p.getCreationDate().getTime()));
+        
+        
+        if(p.getText()!= null)
+        {
+            doc.add(new Field("Text", p.getText(), LuceneUtils.getVectorField()));
+        }
+                
+
+        if (writer.getConfig().getOpenMode() == IndexWriterConfig.OpenMode.CREATE)
+        {
+            // New index, so we just add the document (no old document can be there):
+            //System.out.println("adding " + p.getId());
+            writer.addDocument(doc);
+        }
+        else
+        {
+            // Existing index (an old copy of this document may have been indexed) so 
+            // we use updateDocument instead to replace the old one matching the exact 
+            // path, if present:
+//           System.out.println("updating " + p.getId());
+//           writer.updateDocument(new Term("path", file.toString()), doc);
+            throw new NotImplementedException();
+        }
+    }
+    
 }

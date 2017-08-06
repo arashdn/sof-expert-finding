@@ -82,4 +82,41 @@ public class Mallet
         pw.close();
         
     }
+    
+    public void getMalletAllOutput() throws IOException
+    {
+        
+        String index = new Searcher().getPostIndexPath();
+        IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get(index)));
+        
+        PrintWriter pw = new PrintWriter("./data/mallet_all.txt");
+
+        StringBuilder sb = new StringBuilder();
+        
+        
+        for (int i = 0; i < reader.maxDoc(); i++)
+        {
+            Document doc = reader.document(i);
+            System.out.println("Doc "+i);
+            
+            ArrayList<String> res = LuceneUtils.getAnalyzedRemoveHtml(doc.get("Body"));
+        
+
+            int id=Integer.parseInt(doc.get("SId"));
+            sb = new StringBuilder();
+            sb.append(id);
+            sb.append("\t");
+            for (String re : res)
+            {
+                re = re.replaceAll("\r\n", " ").replaceAll("\n"," ").replaceAll("<.+?>", "").replaceAll(" +"," ").replaceAll("[^\\x00-\\x7F]", " ").trim();
+                sb.append(re).append(" ");
+            }
+            sb.append("\n");
+            pw.print(sb.toString());
+            
+            
+        }
+        pw.close();
+        
+    }
 }
