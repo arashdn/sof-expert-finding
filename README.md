@@ -1,11 +1,15 @@
-# Translation Models on Expert Finding
+# My Research on StackOverflow
 
-This repository contains source codes developed in this paper:
+This repository contains source codes developed for my reaserach on StackOverflow
+
+
+### Published Papers:
+1.
 
 	Arash Dargahi Nobari, Sajad Sotudeh Gharebagh and Mahmood Neshati. “Skill Translation Models in Expert Finding”,
 	In proceedings of The 40th International ACM SIGIR Conference on Research and Development in Information Retrieval (SIGIR ’17), Aug 2017.
 
-You may check the [paper](http://arashdargahi.com/to_be_added) for more information.
+You may check the [paper](http://dl.acm.org/citation.cfm?id=3080719) ([PDF](http://facultymembers.sbu.ac.ir/neshati/wp-content/uploads/2015/03/Skill-Translation-Models-in-Expert-Finding.pdf)) for more information.
 
 
 ## Requirements
@@ -40,7 +44,3 @@ Then Index posts using the button. All other functions have their own button.
 ## Citation
 
 Please cite the paper, If you used the codes in this repository.
-
-```
-
-```
