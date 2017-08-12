@@ -779,23 +779,25 @@ public class MainForm extends javax.swing.JFrame
         try
         {
             //args: number of words in trans, limit to tagged only, self translation, search answer only, use cluster
+            
 //            new Blender("data/tag_mutuals.txt","php").blendOr(10,false,true,true,false);
 //            new Blender("data/tag_mutuals.txt","java").blendOr(10,true,true,true,true);
+//            new Blender("data/final_deep_trans_method_2.txt","php").blendOr(10,true,true,true,false,false);//no cluster
 //            new Blender("data/final_deep_trans_method_2.txt","java").blendOr(10,true,true,true,true);
 //            new Blender("data/final_deep_trans_method_2.txt","php").blendOr(10,true,true,true,false);//no cluster
 //            new Blender("data/final_deep_trans_method_2.txt","java").blendOr(10,true,true,true,true);// cluster
-//            new Blender("data/tag_mutuals.txt","java").blendOr(10,true,true,true,true);// cluster
-//            new Blender("data/final_deep_trans_method_2.txt","php").blendOr(10,true,true,true,true);// cluster
+//            new Blender("data/tag_mutuals.txt","php").blendOr(10,true,true,true,true,false);// cluster
+//            new Blender("data/final_deep_trans_method_2.txt","java").blendOr(10,true,true,true,true,false);// cluster
 //            new Blender("data/cluster_translations.txt","java").blendOr(10,true,true,true,false);
 //            new Blender("data/mahdi.text","java").blendOr(10,false,true,true,false);// cluster
             
             //with voteshare
 //            new Blender("data/tag_mutuals.txt","java").blendOr(10,true,true,true,false,true);// no cluster, with voteshare
-//            new Blender("data/final_deep_trans_method_2.txt","java").blendOr(10,true,true,true,false,true);// no cluster, with voteshare
+            new Blender("data/final_deep_trans_method_2.txt","java").blendOr(10,true,true,true,false,true);// no cluster, with voteshare
 
             //with voteshare
 //            new Blender("data/tag_mutuals.txt","php").blendOr(10,true,true,true,false,true);// no cluster, with voteshare
-            new Blender("data/final_deep_trans_method_2.txt","php").blendOr(10,true,true,true,false,true);// no cluster, with voteshare
+//            new Blender("data/final_deep_trans_method_2.txt","php").blendOr(10,true,true,true,false,true);// no cluster, with voteshare
 
         }
         catch (IOException ex)

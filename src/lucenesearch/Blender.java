@@ -271,7 +271,7 @@ public class Blender
             String tag = pair.getKey().toString();
             ArrayList<ProbTranslate> trans = (ArrayList<ProbTranslate>) pair.getValue();
 
-            totalUserScores = getTransaltionScoreOr(10000, trans, tag, taged, selfTranslate, answerOnly, useCluster, useVoteShare);
+            totalUserScores = getTransaltionScoreOr(20000, trans, tag, taged, selfTranslate, answerOnly, useCluster, useVoteShare);
 
             ValueComparator3 bvc = new ValueComparator3(totalUserScores);
             TreeMap<Integer, Double> sorted_map = new TreeMap<Integer, Double>(bvc);
@@ -387,7 +387,8 @@ public class Blender
                 if (ctrans.size() > 1)
                 {
                     booleanQuery.add(new QueryParser("Body", analyzer).parse(ctrans.get(1).getWord()), BooleanClause.Occur.SHOULD);
-                    booleanQuery.add(new QueryParser("Body", analyzer).parse(ctrans.get(2).getWord()), BooleanClause.Occur.SHOULD);
+                    if (ctrans.size() > 2)
+                        booleanQuery.add(new QueryParser("Body", analyzer).parse(ctrans.get(2).getWord()), BooleanClause.Occur.SHOULD);
 
                 }
             }
