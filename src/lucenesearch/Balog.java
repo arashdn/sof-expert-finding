@@ -225,9 +225,17 @@ public class Balog
         sorted_map.putAll(userScores);
         
         ArrayList<Integer> lst = new ArrayList<>();
+        
+        boolean isFirst = true;
+        int topUser = -10;
 
         for (Map.Entry<Integer, Double> entry : sorted_map.entrySet()) 
         {
+            if(isFirst)
+            {
+                isFirst = false;
+                topUser = entry.getKey();
+            }
             if(printDebug)
                 System.out.println("{" + entry.getKey() + " } -> "+entry.getValue());
             lst.add(entry.getKey());
@@ -239,13 +247,13 @@ public class Balog
         double p10 = ev.precisionAtK(lst, getGoldenList(goldenFile),10);
         if(printDebug)
             System.out.println("MAP= "+map);
-        return new EvalResult(bodyTerm, map, p1, p5, p10);
+        return new EvalResult(bodyTerm, map, p1, p5, p10,topUser);
                         
     }
     
     public ArrayList<EvalResult> balog1ForAllTags(String topTag) throws IOException, ParseException
     {
-        System.out.println("tag:map,p@1,p@5,p@10");
+        System.out.println("tag:map,p@1,p@5,p@10,TopUser");
         ArrayList<String> tags = Utility.getTags(topTag);
         ArrayList<EvalResult> res = new ArrayList<>();
         double map;
@@ -253,7 +261,7 @@ public class Balog
         {
             System.out.print(tag+": ");
             EvalResult er = balog1(tag,false,null,10000,null,0.5);
-            System.out.println(er.getMap()+","+er.getP1()+","+er.getP5()+","+er.getP10());
+            System.out.println(er.getMap()+","+er.getP1()+","+er.getP5()+","+er.getP10()+","+er.getTopUser());
             res.add(er);
         }
         
@@ -312,8 +320,16 @@ public class Balog
         
         ArrayList<Integer> lst = new ArrayList<>();
 
+        boolean isFirst = true;
+        int topUser = -10;
+
         for (Map.Entry<Integer, Double> entry : sorted_map.entrySet()) 
         {
+            if(isFirst)
+            {
+                isFirst = false;
+                topUser = entry.getKey();
+            }
             if(printDebug)
                 System.out.println("{" + entry.getKey() + " } -> "+entry.getValue());
             lst.add(entry.getKey());
@@ -325,7 +341,7 @@ public class Balog
         double p10 = ev.precisionAtK(lst, getGoldenList(goldenFile),10);
         if(printDebug)
             System.out.println("MAP= "+map);
-        return new EvalResult(bodyTerm, map, p1, p5, p10);
+        return new EvalResult(bodyTerm, map, p1, p5, p10,topUser);
                         
     }
 
@@ -483,7 +499,7 @@ public class Balog
     
     public ArrayList<EvalResult> balog2ForAllTags(String topTag) throws IOException, ParseException
     {
-        System.out.println("tag:map,p@1,p@5,p@10");
+        System.out.println("tag:map,p@1,p@5,p@10,TopUser");
         ArrayList<String> tags = Utility.getTags(topTag);
         ArrayList<EvalResult> res = new ArrayList<>();
         double map;
@@ -491,7 +507,7 @@ public class Balog
         {
             System.out.print(tag+":");
             EvalResult er = balog2(tag,false,null,10000,null,0.5);
-            System.out.println(er.getMap()+","+er.getP1()+","+er.getP5()+","+er.getP10());
+            System.out.println(er.getMap()+","+er.getP1()+","+er.getP5()+","+er.getP10()+","+er.getTopUser());
             res.add(er);
         }
         

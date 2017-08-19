@@ -261,7 +261,7 @@ public class Blender
         Iterator it = tags.entrySet().iterator();
         HashMap<Integer, Double> userScores = null;
         HashMap<Integer, Double> totalUserScores = new HashMap<>();
-        System.out.println("tag,map,p@1,p@5,p@10");
+        System.out.println("tag,map,p@1,p@5,p@10,topUser");
         double sum = 0.0;
         int cnt = 0;
         while (it.hasNext())
@@ -271,15 +271,23 @@ public class Blender
             String tag = pair.getKey().toString();
             ArrayList<ProbTranslate> trans = (ArrayList<ProbTranslate>) pair.getValue();
 
-            totalUserScores = getTransaltionScoreOr(20000, trans, tag, taged, selfTranslate, answerOnly, useCluster, useVoteShare);
+            totalUserScores = getTransaltionScoreOr(50000, trans, tag, taged, selfTranslate, answerOnly, useCluster, useVoteShare);
 
             ValueComparator3 bvc = new ValueComparator3(totalUserScores);
             TreeMap<Integer, Double> sorted_map = new TreeMap<Integer, Double>(bvc);
             sorted_map.putAll(totalUserScores);
             ArrayList<Integer> lst = new ArrayList<>();
 
+            boolean isFirst = true;
+            int topUser = 0;
+            
             for (Map.Entry<Integer, Double> entry : sorted_map.entrySet())
             {
+                if(isFirst)
+                {
+                    isFirst = false;
+                    topUser = entry.getKey();
+                }
                 lst.add(entry.getKey());
             }
             Evaluator ev = new Evaluator();
@@ -290,7 +298,7 @@ public class Blender
             double p1 = ev.precisionAtK(lst, balog.getGoldenList(Utility.getGoldenFileName(tag)), 1);
             double p5 = ev.precisionAtK(lst, balog.getGoldenList(Utility.getGoldenFileName(tag)), 5);
             double p10 = ev.precisionAtK(lst, balog.getGoldenList(Utility.getGoldenFileName(tag)), 10);
-            System.out.println("," + p1 + "," + p5 + "," + p10);
+            System.out.println("," + p1 + "," + p5 + "," + p10 + ","+topUser);
 
             if (!Double.isNaN(map))
             {

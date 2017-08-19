@@ -553,7 +553,7 @@ public class MainForm extends javax.swing.JFrame
         try
         {
 //            new Balog().balog1("android",true,null);
-            new Balog().balog1ForAllTags("php");
+            new Balog().balog1ForAllTags("java");
         }
         catch (IOException ex)
         {
@@ -612,7 +612,7 @@ public class MainForm extends javax.swing.JFrame
         try
         {
 //            new Balog().balog2("libgdx",true,null,10000,null,0.5);
-            new Balog().balog2ForAllTags("php");
+            new Balog().balog2ForAllTags("java");
         }
         catch (IOException ex)
         {

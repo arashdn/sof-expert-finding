@@ -11,6 +11,7 @@ class EvalResult implements Comparable<EvalResult>
     private double p1;
     private double p5;
     private double p10;
+    private Integer topUser;
 
     public EvalResult()
     {
@@ -25,11 +26,28 @@ class EvalResult implements Comparable<EvalResult>
         this.setP1(p1);
         this.setP5(p5);
         this.setP10(p10);
+        this.setTopUser(0);
+    }
+    public EvalResult(String tag, double map, double p1, double p5, double p10,int topUser)
+    {
+        this.setTag(tag);
+        this.setMap(map);
+        this.setP1(p1);
+        this.setP5(p5);
+        this.setP10(p10);
+        this.setTopUser(topUser);
+    }
+
+    public Integer getTopUser() 
+    {
+        return topUser;
+    }
+
+    public void setTopUser(Integer topUser) 
+    {
+        this.topUser = topUser;
     }
     
-    
-    
-
     public String getTag()
     {
         return tag;
