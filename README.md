@@ -6,10 +6,18 @@ This repository contains source codes developed for my reaserach on StackOverflo
 ### Published Papers:
 1.
 
-	Arash Dargahi Nobari, Sajad Sotudeh Gharebagh and Mahmood Neshati. “Skill Translation Models in Expert Finding”,
+	Arash Dargahi Nobari, Sajad Sotudeh Gharebagh and Mahmood Neshati, “Skill Translation Models in Expert Finding”,
 	In proceedings of The 40th International ACM SIGIR Conference on Research and Development in Information Retrieval (SIGIR ’17), Aug 2017.
 
 You may check the [paper](http://dl.acm.org/citation.cfm?id=3080719) ([PDF](http://facultymembers.sbu.ac.ir/neshati/wp-content/uploads/2015/03/Skill-Translation-Models-in-Expert-Finding.pdf)) for more information.
+
+
+2.
+
+	Arash Dargahi Nobari, Mahmood Neshati and Sajad Sotudeh Gharebagh, 
+	“Quality-aware skill translation models for expert finding on StackOverflow”, Information Systems, 2019.
+
+You may check the [paper](https://doi.org/10.1016/j.is.2019.07.003) ([PDF](http://arashdargahi.com/wp-content/uploads/translation_paper.pdf)) for more information.
 
 
 ## Requirements
